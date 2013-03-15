@@ -30,10 +30,8 @@ static char THIS_FILE[] = __FILE__;
 #endif	// Debug
 
 BEGIN_MESSAGE_MAP(CDiscoveryServiceDlg, CSkinDialog)
-	//{{AFX_MSG_MAP(CDiscoveryServiceDlg)
 	ON_EN_CHANGE(IDC_ADDRESS, OnChangeAddress)
 	ON_CBN_SELCHANGE(IDC_SERVICE_TYPE, OnSelChangeServiceType)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 
@@ -42,12 +40,9 @@ END_MESSAGE_MAP()
 
 CDiscoveryServiceDlg::CDiscoveryServiceDlg(CWnd* pParent, CDiscoveryService* pService) : CSkinDialog(CDiscoveryServiceDlg::IDD, pParent)
 	, m_pService	( pService )
-	, m_sAddress	( _T("") )
 	, m_nType 		( -1 )
 	, m_bNew		( FALSE )
 {
-	//{{AFX_DATA_INIT(CDiscoveryServiceDlg)
-	//}}AFX_DATA_INIT
 }
 
 CDiscoveryServiceDlg::~CDiscoveryServiceDlg()
@@ -58,11 +53,9 @@ CDiscoveryServiceDlg::~CDiscoveryServiceDlg()
 void CDiscoveryServiceDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CSkinDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CDiscoveryServiceDlg)
 	DDX_Control(pDX, IDOK, m_wndOK);
 	DDX_Text(pDX, IDC_ADDRESS, m_sAddress);
 	DDX_CBIndex(pDX, IDC_SERVICE_TYPE, m_nType);
-	//}}AFX_DATA_MAP
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -168,30 +161,30 @@ void CDiscoveryServiceDlg::OnOK()
 
 	if ( m_pService->m_nType == CDiscoveryService::dsGnutella )
 	{
-		if ( _tcsnicmp( m_sAddress, _T("gnutella2:host:"), 15 ) == 0 ||
-			 _tcsnicmp( m_sAddress, _T("g2:host:"), 8 ) == 0 )
+		if ( StartsWith( m_sAddress, _PT("gnutella2:host:") ) ||
+			 StartsWith( m_sAddress, _PT("g2:host:") ) )
 		{
 			m_pService->m_bGnutella2	= TRUE;
 			m_pService->m_bGnutella1	= FALSE;
 			m_pService->m_nProtocolID	= PROTOCOL_G2;
 			m_pService->m_nSubType		= CDiscoveryService::dsGnutella2TCP;
 		}
-		else if ( _tcsnicmp( m_sAddress, _T("gnutella1:host:"), 15 ) == 0 ||
-			 _tcsnicmp( m_sAddress, _T("gnutella:host:"), 14 ) == 0 )
+		else if ( StartsWith( m_sAddress, _PT("gnutella1:host:") ) ||
+			 StartsWith( m_sAddress, _PT("gnutella:host:") ) )
 		{
 			m_pService->m_bGnutella2	= FALSE;
 			m_pService->m_bGnutella1	= TRUE;
 			m_pService->m_nProtocolID	= PROTOCOL_G1;
 			m_pService->m_nSubType		= CDiscoveryService::dsGnutellaTCP;
 		}
-		else if ( _tcsnicmp( m_sAddress, _T("uhc:"), 4 ) == 0 )
+		else if ( StartsWith( m_sAddress, _PT("uhc:") ) )
 		{
 			m_pService->m_bGnutella2	= FALSE;
 			m_pService->m_bGnutella1	= TRUE;
 			m_pService->m_nProtocolID	= PROTOCOL_G1;
 			m_pService->m_nSubType		= CDiscoveryService::dsGnutellaUDPHC;
 		}
-		else if ( _tcsnicmp( m_sAddress, _T("ukhl:"), 5 ) == 0 )
+		else if ( StartsWith( m_sAddress, _PT("ukhl:") ) )
 		{
 			m_pService->m_bGnutella2	= TRUE;
 			m_pService->m_bGnutella1	= FALSE;

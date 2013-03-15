@@ -22,6 +22,7 @@
 #include "WizardProfilePage.h"
 #include "GProfile.h"
 #include "WorldGPS.h"
+#include "Network.h"
 #include "Skin.h"
 #include "XML.h"
 
@@ -34,10 +35,8 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNCREATE(CWizardProfilePage, CWizardPage)
 
 BEGIN_MESSAGE_MAP(CWizardProfilePage, CWizardPage)
-	//{{AFX_MSG_MAP(CWizardProfilePage)
 	ON_WM_XBUTTONDOWN()
 	ON_CBN_SELCHANGE(IDC_LOC_COUNTRY, OnSelChangeCountry)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 
@@ -60,7 +59,6 @@ CWizardProfilePage::~CWizardProfilePage()
 void CWizardProfilePage::DoDataExchange(CDataExchange* pDX)
 {
 	CWizardPage::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CWizardProfilePage)
 	DDX_Text(pDX, IDC_PROFILE_NICK, m_sNick);
 	DDX_Control(pDX, IDC_LOC_CITY, m_wndCity);
 	DDX_Control(pDX, IDC_LOC_COUNTRY, m_wndCountry);
@@ -70,7 +68,6 @@ void CWizardProfilePage::DoDataExchange(CDataExchange* pDX)
 	DDX_CBIndex(pDX, IDC_PROFILE_AGE, m_nAge);
 	DDX_CBIndex(pDX, IDC_PROFILE_GENDER, m_nGender);
 	DDX_Control(pDX, IDC_PROFILE_BIO, m_wndComments);
-	//}}AFX_DATA_MAP
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -142,7 +139,7 @@ BOOL CWizardProfilePage::OnSetActive()
 
 		for ( int nAgeItem = 0 ; nAgeItem < m_wndAge.GetCount() ; nAgeItem ++ )
 		{
-			if ( m_wndAge.GetItemData( nAgeItem ) == DWORD( nAge ) )
+			if ( m_wndAge.GetItemData( nAgeItem ) == (DWORD)nAge )
 			{
 				m_nAge = nAgeItem;
 				break;
@@ -159,6 +156,9 @@ BOOL CWizardProfilePage::OnSetActive()
 							+ pPolitical->GetAttributeValue( _T("state") );
 		}
 	}
+
+	if ( m_sLocCountry.IsEmpty() && Network.m_pHost.sin_addr.S_un.S_addr )
+		m_sLocCountry = theApp.GetCountryName( Network.m_pHost.sin_addr );
 
 	UpdateData( FALSE );
 

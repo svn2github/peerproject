@@ -308,7 +308,7 @@ void CSchedulerWnd::OnSkinChange()
 	CoolInterface.LoadIconsTo( m_gdiImageList, nImageIDs );
 	m_wndList.SetImageList( &m_gdiImageList, LVSIL_SMALL );
 
-	if ( m_wndList.SetBkImage( Skin.GetWatermark( _T("CSchedulerWnd") ) ) )
+	if ( m_wndList.SetBkImage( Skin.GetWatermark( _T("CSchedulerWnd") ) ) || m_wndList.SetBkImage( Skin.GetWatermark( _T("System.Windows") ) ) )	// Images.m_bmSystemWindow.m_hObject
 		m_wndList.SetExtendedStyle( LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_LABELTIP|LVS_EX_SUBITEMIMAGES );	// No LVS_EX_DOUBLEBUFFER
 	else
 		m_wndList.SetBkColor( Colors.m_crWindow );
@@ -332,14 +332,19 @@ void CSchedulerWnd::OnCustomDrawList(NMHDR* pNMHDR, LRESULT* pResult)
 		pItem.iSubItem	= 0;
 		m_wndList.GetItem( &pItem );
 
+		if ( m_wndList.GetBkColor() == Colors.m_crWindow )
+			pDraw->clrTextBk = Colors.m_crWindow;
+
 		switch ( pItem.iImage )
 		{
 		case 2:
-			pDraw->clrText = RGB( 0, 127, 0 );
+			pDraw->clrText = RGB( 0, 127, 0 );	// ToDo: Color?
 			break;
 		case 3:
-			pDraw->clrText = RGB( 255, 0, 0 );
+			pDraw->clrText = RGB( 255, 0, 0 );	// ToDo: Color?
 			break;
+		default:
+			pDraw->clrText = Colors.m_crText;
 		}
 
 		*pResult = CDRF_DODEFAULT;
@@ -361,7 +366,7 @@ void CSchedulerWnd::OnSortList(NMHDR* pNotifyStruct, LRESULT *pResult)
 
 void CSchedulerWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 {
-	if ( point.x == -1 && point.y == -1 ) 	// Keyboard fix
+	if ( point.x == -1 && point.y == -1 )	// Keyboard fix
 		ClientToScreen( &point );
 
 	Skin.TrackPopupMenu( _T("CSchedulerWnd"), point, ID_SCHEDULER_EDIT );
@@ -426,6 +431,7 @@ void CSchedulerWnd::OnSchedulerAdd()
 void CSchedulerWnd::OnUpdateSchedulerDeactivate(CCmdUI* pCmdUI)
 {
 	CQuickLock oLock( Scheduler.m_pSection );
+
 	CScheduleTask* pSchTask = GetItem( m_wndList.GetNextItem( -1, LVIS_SELECTED ) );
 
 	if ( ! pSchTask )

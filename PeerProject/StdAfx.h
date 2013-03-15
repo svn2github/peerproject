@@ -27,6 +27,10 @@
 // ToDo: Visual C++ Express Editions + WDK uncomment this line  (See ReadMe.txt)
 //#define VCEXPRESS
 
+#if defined(_MSC_VER) && (_MSC_FULL_VER < 150030000)
+	#error Visual Studio 2008 SP1 or higher required for building
+#endif
+
 
 //
 // Generate Manifest  (Themed controls)
@@ -54,7 +58,7 @@
 
 #pragma warning ( disable : 4244 )		// (Level 2)	'argument' : conversion from 'type1' to 'type2', possible loss of data
 
-#pragma warning ( disable : 4347 )		// (Level 4)	behavior change: 'function template' is called instead of 'function'
+//#pragma warning ( disable : 4347 )	// (Level 4)	behavior change: 'function template' is called instead of 'function'
 #pragma warning ( disable : 4512 )		// (Level 4)	'class' : assignment operator could not be generated
 
 // Warnings that are normally OFF by default (enabled by /Wall)
@@ -85,6 +89,9 @@
 #ifndef _SCL_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS
 #endif
+
+#define _AFX_NO_MFC_CONTROLS_IN_DIALOGS		// Smaller filesize VS2012+
+
 
 // For detecting Memory Leaks
 #ifdef _DEBUG
@@ -135,7 +142,7 @@
 #include <afxwin.h>			// MFC core and standard components
 #include <afxext.h>			// MFC extensions
 #include <afxcmn.h>			// MFC support for Windows Common Controls
-//#include <afxdtctl.h>		// MFC date & time controls  (In DlgScheduleTask & PageDownloadEdit)
+#include <afxdtctl.h>		// MFC date & time controls  (For DlgScheduleTask & PageDownloadEdit)
 #include <afxtempl.h>		// MFC templates
 #include <afxmt.h>			// MFC threads
 #include <afxole.h>			// MFC OLE
@@ -214,7 +221,7 @@
 #include <vector>
 
 #if defined(_MSC_VER) && (_MSC_VER < 1600)	// Needed below VS2010 for MinMax.hpp?
-#include <limits>	
+#include <limits>
 #endif
 
 //#include <functional>
@@ -241,7 +248,7 @@
 //
 // ToDo: See Shareaza r8451 for some tr1 implementation
 
-//#ifdef _HAS_TR1	// defined(_MSC_VER) && (_MSC_FULL_VER > 150030000)	// VS2008 SP1 for tr1
+//#if defined(_MSC_VER) && (_MSC_FULL_VER > 150030000)	// _HAS_TR1		// VS2008 SP1 for tr1, VS2012 for std
   //#include <array>
   //#include <memory>
   //#include <regex>					// In RegExp.cpp
@@ -282,7 +289,7 @@
 //#include <Boost/static_assert.hpp>
 
 // Handle static_assert(false,"text") prior to VS2010
-#if _MSC_VER < 1600
+#if defined(_MSC_VER) && (_MSC_VER < 1600)
 	#ifdef _STATIC_ASSERT( expr )			// VS2008
 		#define static_assert( expr, text ) _STATIC_ASSERT( expr )
 	#else
@@ -301,7 +308,7 @@
 
 #include "MinMax.hpp"
 
-#if _MSC_VER >= 1500 && _MSC_VER < 1600		// Work-around for VC9 (VS2008) where
+#if defined(_MSC_VER) && (_MSC_VER >= 1500) && (_MSC_VER < 1600)		// Work-around for VC9 (VS2008) where
 	#pragma warning( pop )					// a (pop) is ifdef'd out in stdio.h
 #endif
 

@@ -143,12 +143,10 @@ CFilePreviewDlg::~CFilePreviewDlg()
 void CFilePreviewDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CSkinDialog::DoDataExchange( pDX );
-	//{{AFX_DATA_MAP(CFilePreviewDlg)
 	DDX_Control(pDX, IDCANCEL, m_wndCancel);
 	DDX_Control(pDX, IDC_PROGRESS, m_wndProgress);
 	DDX_Control(pDX, IDC_PREVIEW_STATUS, m_wndStatus);
 	DDX_Control(pDX, IDC_FILE_NAME, m_wndName);
-	//}}AFX_DATA_MAP
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -380,7 +378,7 @@ BOOL CFilePreviewDlg::RunManual()
 	HRESULT hr = oSourceFile.Create( m_sSourceName, GENERIC_READ,
 		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, OPEN_EXISTING );
 	if ( FAILED( hr ) )
-		 return FALSE;
+		return FALSE;
 
 	CAtlFile oTargetFile;
 	hr = oTargetFile.Create( m_sTargetName, GENERIC_WRITE, 0, CREATE_ALWAYS );

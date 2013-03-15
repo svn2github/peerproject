@@ -35,9 +35,7 @@ static char THIS_FILE[] = __FILE__;
 #endif	// Debug
 
 BEGIN_MESSAGE_MAP(CFileCopyDlg, CSkinDialog)
-	//{{AFX_MSG_MAP(CFileCopyDlg)
 	ON_WM_TIMER()
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 
@@ -56,7 +54,6 @@ CFileCopyDlg::CFileCopyDlg(CWnd* pParent, BOOL bMove)
 void CFileCopyDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CSkinDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CFileCopyDlg)
 	DDX_Control(pDX, IDC_MESSAGE_MOVE, m_wndMove);
 	DDX_Control(pDX, IDC_MESSAGE_COPY, m_wndCopy);
 	DDX_Control(pDX, IDC_FILE_NAME, m_wndFileName);
@@ -65,7 +62,6 @@ void CFileCopyDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PLACEHOLDER, m_wndPlaceholder);
 	DDX_Control(pDX, IDCANCEL, m_wndCancel);
 	DDX_Control(pDX, IDOK, m_wndOK);
-	//}}AFX_DATA_MAP
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -137,7 +133,6 @@ void CFileCopyDlg::OnTimer(UINT_PTR /*nIDEvent*/)
 	if ( m_nCookie != Library.GetCookie() )
 	{
 		CSingleLock pLock( &Library.m_pSection );
-
 		if ( pLock.Lock( 500 ) )
 		{
 			m_nCookie = Library.GetCookie();
@@ -254,7 +249,7 @@ void CFileCopyDlg::OnRun()
 				bMetadataAuto = pFile->m_bMetadataAuto;
 				nRating 	= pFile->m_nRating;
 				strComments	= pFile->m_sComments;
-				strShareTags	= pFile->m_sShareTags;
+				strShareTags = pFile->m_sShareTags;
 			}
 		}
 
@@ -358,10 +353,9 @@ bool CFileCopyDlg::ProcessFile(const CString& strName, const CString& strPath)
 	}
 
 	// Copy/Move the file
-	if ( m_bMove )
-		return ProcessMove( strSource, strTarget );
-	else
-		return ProcessCopy( strSource, strTarget );
+	return m_bMove ?
+		ProcessMove( strSource, strTarget ) :
+		ProcessCopy( strSource, strTarget );
 }
 
 bool CFileCopyDlg::CheckTarget(const CString& strTarget)
@@ -434,13 +428,13 @@ bool CFileCopyDlg::ProcessCopy(const CString& strSource, const CString& strTarge
 	m_wndFileProg.SetPos( 0 );
 	m_nFileProg = 0;
 
-	bool bResult = CopyFileEx( strSource, strTarget, CopyCallback, this,
-		&m_bCancel, COPY_FILE_FAIL_IF_EXISTS ) != 0;
+	if ( CopyFileEx( strSource, strTarget, CopyCallback, this, &m_bCancel, COPY_FILE_FAIL_IF_EXISTS ) != 0 )
+		return true;
 
-	if ( ! bResult && ! IsThreadAlive() )
+	if ( ! IsThreadAlive() )
 		DeleteFileEx( strTarget, TRUE, FALSE, FALSE );
 
-	return bResult;
+	return false;
 }
 
 DWORD WINAPI CFileCopyDlg::CopyCallback(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER /*StreamSize*/, LARGE_INTEGER /*StreamBytesTransferred*/, DWORD /*dwStreamNumber*/, DWORD /*dwCallbackReason*/, HANDLE /*hSourceFile*/, HANDLE /*hDestinationFile*/, LPVOID lpData)

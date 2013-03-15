@@ -43,7 +43,6 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_SERIAL(CSecurityWnd, CPanelWnd, 0)
 
 BEGIN_MESSAGE_MAP(CSecurityWnd, CPanelWnd)
-	//{{AFX_MSG_MAP(CSecurityWnd)
 	ON_WM_CREATE()
 	ON_WM_DESTROY()
 	ON_WM_SIZE()
@@ -70,7 +69,6 @@ BEGIN_MESSAGE_MAP(CSecurityWnd, CPanelWnd)
 	ON_UPDATE_COMMAND_UI(ID_SECURITY_EXPORT, OnUpdateSecurityExport)
 	ON_COMMAND(ID_SECURITY_EXPORT, OnSecurityExport)
 	ON_COMMAND(ID_SECURITY_IMPORT, OnSecurityImport)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 
@@ -209,7 +207,7 @@ void CSecurityWnd::OnSkinChange()
 //	CoolInterface.LoadIconsTo( m_gdiImageList, nImageIDs );
 //	m_wndList.SetImageList( &m_gdiImageList, LVSIL_SMALL );
 
-	if ( m_wndList.SetBkImage( Skin.GetWatermark( _T("CSecurityWnd") ) ) )
+	if ( m_wndList.SetBkImage( Skin.GetWatermark( _T("CSecurityWnd") ) ) || m_wndList.SetBkImage( Skin.GetWatermark( _T("System.Windows") ) ) )		// Images.m_bmSystemWindow.m_hObject
 		m_wndList.SetExtendedStyle( LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_LABELTIP|LVS_EX_SUBITEMIMAGES );	// No LVS_EX_DOUBLEBUFFER
 	else
 		m_wndList.SetBkColor( Colors.m_crWindow );
@@ -265,7 +263,7 @@ void CSecurityWnd::OnSortList(NMHDR* pNotifyStruct, LRESULT *pResult)
 
 void CSecurityWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 {
-	if ( point.x == -1 && point.y == -1 ) 	// Keyboard fix
+	if ( point.x == -1 && point.y == -1 )	// Keyboard fix
 		ClientToScreen( &point );
 
 	Skin.TrackPopupMenu( _T("CSecurityWnd"), point, ID_SECURITY_EDIT );

@@ -33,13 +33,11 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNCREATE(CFavouritesProfilePage, CSettingsPage)
 
 BEGIN_MESSAGE_MAP(CFavouritesProfilePage, CSettingsPage)
-	//{{AFX_MSG_MAP(CFavouritesProfilePage)
 	ON_EN_CHANGE(IDC_WEB_NAME, OnChangeWebName)
 	ON_EN_CHANGE(IDC_WEB_URL, OnChangeWebUrl)
 	ON_BN_CLICKED(IDC_WEB_ADD, OnWebAdd)
 	ON_BN_CLICKED(IDC_WEB_REMOVE, OnWebRemove)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_WEB_LIST, OnItemChangedWebList)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 
@@ -47,11 +45,9 @@ END_MESSAGE_MAP()
 // CFavouritesProfilePage property page
 
 CFavouritesProfilePage::CFavouritesProfilePage() : CSettingsPage( CFavouritesProfilePage::IDD )
-	, m_sTitle	( _T("") )
-	, m_sURL	( _T("http://") )
+//	, m_sTitle	( _T("") )
+//	, m_sURL	( _T("http://") )
 {
-	//{{AFX_DATA_INIT(CFavouritesProfilePage)
-	//}}AFX_DATA_INIT
 }
 
 CFavouritesProfilePage::~CFavouritesProfilePage()
@@ -61,13 +57,11 @@ CFavouritesProfilePage::~CFavouritesProfilePage()
 void CFavouritesProfilePage::DoDataExchange(CDataExchange* pDX)
 {
 	CSettingsPage::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CFavouritesProfilePage)
 	DDX_Control(pDX, IDC_WEB_REMOVE, m_wndRemove);
 	DDX_Control(pDX, IDC_WEB_ADD, m_wndAdd);
 	DDX_Control(pDX, IDC_WEB_LIST, m_wndList);
 	DDX_Text(pDX, IDC_WEB_URL, m_sURL);
 	DDX_Text(pDX, IDC_WEB_NAME, m_sTitle);
-	//}}AFX_DATA_MAP
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -90,7 +84,7 @@ BOOL CFavouritesProfilePage::OnInitDialog()
 	m_wndList.InsertColumn( 0, _T("Name"), LVCFMT_LEFT, 160, -1 );
 	m_wndList.InsertColumn( 1, _T("URL"), LVCFMT_LEFT, rc.right - 160, 0 );
 
-	m_wndList.SendMessage( LVM_SETEXTENDEDLISTVIEWSTYLE, LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT );
+	m_wndList.SetExtendedStyle( LVS_EX_FULLROWSELECT );
 
 	if ( CXMLElement* pBookmarks = MyProfile.GetXML( _T("bookmarks") ) )
 	{

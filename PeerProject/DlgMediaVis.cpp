@@ -33,11 +33,9 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNAMIC(CMediaVisDlg, CSkinDialog)
 
 BEGIN_MESSAGE_MAP(CMediaVisDlg, CSkinDialog)
-	//{{AFX_MSG_MAP(CMediaVisDlg)
 	ON_NOTIFY(NM_DBLCLK, IDC_PLUGINS, OnDblClkPlugins)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_PLUGINS, OnItemChangedPlugins)
 	ON_BN_CLICKED(IDC_VIS_SETUP, OnSetup)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 
@@ -49,8 +47,6 @@ CMediaVisDlg::CMediaVisDlg(CMediaFrame* pFrame) : CSkinDialog( CMediaVisDlg::IDD
 	, m_hIcon	( NULL )
 	, m_nSize	( -1 )
 {
-	//{{AFX_DATA_INIT(CMediaVisDlg)
-	//}}AFX_DATA_INIT
 }
 
 CMediaVisDlg::~CMediaVisDlg()
@@ -61,11 +57,9 @@ CMediaVisDlg::~CMediaVisDlg()
 void CMediaVisDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CSkinDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMediaVisDlg)
 	DDX_Control(pDX, IDC_PLUGINS, m_wndList);
 	DDX_Control(pDX, IDC_VIS_SETUP, m_wndSetup);
 	DDX_CBIndex(pDX, IDC_VIS_SIZE, m_nSize);
-	//}}AFX_DATA_MAP
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -88,8 +82,7 @@ BOOL CMediaVisDlg::OnInitDialog()
 	m_wndList.InsertColumn( 1, _T("CLSID"), LVCFMT_LEFT, 0, 0 );
 	m_wndList.InsertColumn( 2, _T("Subpath"), LVCFMT_LEFT, 0, 1 );
 
-	m_wndList.SendMessage( LVM_SETEXTENDEDLISTVIEWSTYLE,
-		LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT );
+	m_wndList.SetExtendedStyle( LVS_EX_FULLROWSELECT );
 
 	m_nIcon = CoolInterface.ImageForID( ID_MEDIA_VIS );
 	m_hIcon = CoolInterface.ExtractIcon( ID_MEDIA_VIS, FALSE );
@@ -119,13 +112,13 @@ void CMediaVisDlg::Enumerate()
 
 	for ( DWORD nKey = 0 ; ; nKey++ )
 	{
-		DWORD dwType, dwName = 256, dwCLSID = 64 * sizeof(TCHAR);
+		DWORD dwType, dwName = 256, dwCLSID = 64 * sizeof( TCHAR );
 		TCHAR szName[256], szCLSID[64];
 
 		if ( RegEnumValue( hKey, nKey, szName, &dwName, NULL, &dwType, (LPBYTE)szCLSID, &dwCLSID )
 			 != ERROR_SUCCESS ) break;
 
-		if ( dwType != REG_SZ || dwCLSID / sizeof(TCHAR) != 39 || szCLSID[0] != '{' || szName[0] == '{' ) continue;
+		if ( dwType != REG_SZ || dwCLSID / sizeof( TCHAR ) != 39 || szCLSID[0] != '{' || szName[0] == '{' ) continue;
 		szCLSID[ 38 ] = 0;
 
 		CLSID pCLSID;

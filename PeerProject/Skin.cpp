@@ -119,7 +119,8 @@ void CSkin::CreateDefault()
 	Settings.SetDefault( &Settings.Skin.MenuGripper );		// true
 	Settings.SetDefault( &Settings.Skin.RoundedSelect );	// false
 	Settings.SetDefault( &Settings.Skin.DropMenu ); 		// false
-	m_rcNavBarOffset = CRect( 0, 0, 0, 0 );
+	Settings.SetDefault( &Settings.Skin.DropMenuLabel ); 	// true
+	m_ptNavBarOffset = CPoint( 0, 0 );
 
 	// Command Icons
 	//if ( HICON hIcon = theApp.LoadIcon( IDI_CHECKMARK ) )
@@ -608,7 +609,7 @@ BOOL CSkin::LoadOptions(CXMLElement* pBase)
 		if ( ! pXML->IsNamed( _T("option") ) )
 		{
 			theApp.Message( MSG_ERROR, IDS_SKIN_ERROR, _T("Unknown element in skin [Options]"), pXML->ToString() );
-			continue;	// Failed, but keep trying
+			continue;		// Failed, but keep trying
 		}
 
 		const CString strName	= pXML->GetAttributeValue( _T("name") ).MakeLower();
@@ -675,6 +676,14 @@ BOOL CSkin::LoadOptions(CXMLElement* pBase)
 				Settings.Skin.DropMenu = true;
 			else if ( strValue == _T("0") )
 				Settings.Skin.DropMenu = false;
+			else if ( ! strValue.IsEmpty() && strValue.GetLength() < 3 )
+				Settings.Skin.DropMenuLabel = _wtoi(strValue);
+			if ( ! strWidth.IsEmpty() )
+				Settings.Skin.DropMenuLabel = _wtoi(strWidth);
+			if ( Settings.Skin.DropMenuLabel > 100 )
+				Settings.Skin.DropMenuLabel = 0;
+			else if ( Settings.Skin.DropMenuLabel > 1 )
+				Settings.Skin.DropMenu = true;
 			break;
 		case 'b':	// "MenuBorders" or "MenubarBevel"
 			if ( strValue == _T("true") )
@@ -999,7 +1008,7 @@ BOOL CSkin::LoadNavBar(CXMLElement* pBase)
 	CString strValue = pBase->GetAttributeValue( _T("offset") );
 	if ( ! strValue.IsEmpty() )
 	{
-		if ( _stscanf( strValue, _T("%i,%i"), &m_rcNavBarOffset.left, &m_rcNavBarOffset.top ) != 2 )
+		if ( _stscanf( strValue, _T("%i,%i"), &m_ptNavBarOffset.x, &m_ptNavBarOffset.y ) != 2 )
 			theApp.Message( MSG_ERROR, IDS_SKIN_ERROR, _T("Bad [offset] attribute in [navbar] element"), pBase->ToString() );
 	}
 
@@ -1051,7 +1060,7 @@ BOOL CSkin::CreateToolBar(LPCTSTR pszName, CCoolBarCtrl* pBar)
 				pBar->SetWatermark( hBitmap );
 			else if ( HBITMAP hBitmap = GetWatermark( strClassName + _T(".Toolbar") ) )
 				pBar->SetWatermark( hBitmap );
-			else if ( HBITMAP hBitmap = GetWatermark( _T("System.Toolbars") ) )
+			else if ( HBITMAP hBitmap = GetWatermark( _T("System.Toolbars") ) )		// ToDo: Images.m_bmToolbar
 				pBar->SetWatermark( hBitmap );
 
 			pBar->Copy( pBase );
@@ -1297,8 +1306,8 @@ BOOL CSkin::LoadWatermarks(CXMLElement* pSub, const CString& strPath)
 
 		if ( pMark->IsNamed( _T("watermark") ) || pMark->IsNamed( _T("image") ) )
 		{
-			CString strName	= pMark->GetAttributeValue( _T("target") );
-			CString strFile	= pMark->GetAttributeValue( _T("path") );
+			CString strName = pMark->GetAttributeValue( _T("target") );
+			CString strFile = pMark->GetAttributeValue( _T("path") );
 
 			if ( ! strName.IsEmpty() )
 			{
@@ -1398,7 +1407,7 @@ BOOL CSkin::LoadWatermarks(CXMLElement* pSub, const CString& strPath)
 //	{
 //		BITMAP bmInfo;
 //		m_bmBanner.Attach( hBanner );
-//		m_bmBanner.GetObject( sizeof(BITMAP), &bmInfo );
+//		m_bmBanner.GetObject( sizeof( BITMAP ), &bmInfo );
 //		m_bmBanner.SetBitmapDimension( bmInfo.bmWidth, bmInfo.bmHeight );
 //		m_nBanner = bmInfo.bmHeight;
 //	}
@@ -1406,7 +1415,7 @@ BOOL CSkin::LoadWatermarks(CXMLElement* pSub, const CString& strPath)
 //	{
 //		BITMAP bmInfo;
 //		m_bmBanner.Attach( hBanner );
-//		m_bmBanner.GetObject( sizeof(BITMAP), &bmInfo );
+//		m_bmBanner.GetObject( sizeof( BITMAP ), &bmInfo );
 //		m_bmBanner.SetBitmapDimension( bmInfo.bmWidth, bmInfo.bmHeight );
 //		m_nBanner = bmInfo.bmHeight;
 //	}
@@ -1533,148 +1542,28 @@ BOOL CSkin::Apply(LPCTSTR pszName, CDialog* pDialog, UINT nIconID, CToolTipCtrl*
 
 	CString strName;
 
-	if ( pszName == NULL )
-		strName = pDialog->GetRuntimeClass()->m_lpszClassName;
-	else
+	if ( pszName )
 		strName = pszName;
-
-	CString strCaption, strTip;
-
-	for ( CWnd* pWnd = pDialog->GetWindow( GW_CHILD ) ; pWnd ; pWnd = pWnd->GetNextWindow() )
-	{
-		pWnd->SetFont( &CoolInterface.m_fntNormal );
-
-		TCHAR szClass[3] = { 0, 0, 0 };
-		LoadControlTip( strTip, pWnd->GetDlgCtrlID() );
-
-		if ( pWndTooltips && ! strTip.IsEmpty() )
-			pWndTooltips->AddTool( pWnd, strTip );
-
-		GetClassName( pWnd->GetSafeHwnd(), szClass, 3 );
-
-		// Skip added banner
-		if ( _tcsnicmp( szClass, _T("St"), 3 ) == 0 &&
-			IDC_BANNER == pWnd->GetDlgCtrlID() )
-			continue;
-
-		// Skip settings pages
-		if ( pWnd->IsKindOf( RUNTIME_CLASS( CSettingsPage ) ) )
-			continue;
-
-		strCaption += szClass;	// Cookie
-	}
+	else
+		strName = pDialog->GetRuntimeClass()->m_lpszClassName;
 
 	if ( Settings.General.DialogScan )
-	{
-		CStdioFile pFile;
-
-		if ( pFile.Open( Settings.General.Path + _T("\\Dialogs.xml"), CFile::modeReadWrite ) )
-			pFile.Seek( 0, CFile::end );
-		else if ( ! pFile.Open( Settings.General.Path + _T("\\Dialogs.xml"), CFile::modeWrite|CFile::modeCreate ) )
-			return FALSE;
-		else
-			pFile.WriteString( _T("<dialogs>\r\n") );
-
-		// Obsolete CFile method, for reference & deletion:
-		//pFile.Write( "\t<dialog name=\"", 15 );
-		//int nBytes = WideCharToMultiByte( CP_ACP, 0, strName, strName.GetLength(), NULL, 0, NULL, NULL );
-		//LPSTR pBytes = new CHAR[nBytes];
-		//WideCharToMultiByte( CP_ACP, 0, strName, strName.GetLength(), pBytes, nBytes, NULL, NULL );
-		//pFile.Write( pBytes, nBytes );
-		//delete [] pBytes;
-
-		pFile.WriteString( _T("\t<dialog name=\"") );
-		pFile.WriteString( strName );
-
-		pFile.WriteString( _T("\" cookie=\"") );
-		pFile.WriteString( strCaption );
-
-		pFile.WriteString( _T("\" caption=\"") );
-		pDialog->GetWindowText( strCaption );
-		strCaption.Replace( _T("\n"), _T("{n}") );
-		strCaption.Replace( _T("\r"), _T("") );
-		strCaption.Replace( _T("&"), _T("_") );
-		strCaption = Escape( strCaption );
-		pFile.WriteString( strCaption );
-
-		pFile.WriteString( _T("\">\r\n") );
-
-		for ( CWnd* pWnd = pDialog->GetWindow( GW_CHILD ) ; pWnd ; pWnd = pWnd->GetNextWindow() )
-		{
-			TCHAR szClass[64];
-
-			GetClassName( pWnd->GetSafeHwnd(), szClass, 64 );
-			strCaption.Empty();
-
-			// Skip added banner
-			if ( _tcsnicmp( szClass, _T("St"), 3 ) == 0 &&
-				IDC_BANNER == pWnd->GetDlgCtrlID() )
-				continue;
-
-			if ( _tcsistr( szClass, _T("Static") ) ||
-				 _tcsistr( szClass, _T("Button") ) )
-			{
-				pWnd->GetWindowText( strCaption );
-			}
-			else if ( _tcsistr( szClass, _T("ListBox") ) )
-			{
-				CListBox* pListBox = static_cast< CListBox* >( pWnd );
-				for ( int i = 0 ; i < pListBox->GetCount() ; ++i )
-				{
-					CString strTemp;
-					pListBox->GetText( i, strTemp );
-					if ( ! strCaption.IsEmpty() )
-						strCaption += _T('|');
-					strCaption += strTemp;
-				}
-			}
-			else if ( _tcsistr( szClass, _T("ComboBox") ) )
-			{
-				CComboBox* pComboBox = static_cast< CComboBox* >( pWnd );
-				for ( int i = 0 ; i < pComboBox->GetCount() ; ++i )
-				{
-					CString strTemp;
-					pComboBox->GetLBText( i, strTemp );
-					if ( ! strCaption.IsEmpty() )
-						strCaption += _T('|');
-					strCaption += strTemp;
-				}
-			}
-
-			if ( ! strCaption.IsEmpty() )
-			{
-				strCaption.Replace( _T("\n"), _T("{n}") );
-				strCaption.Replace( _T("\r"), _T("") );
-				strCaption.Replace( _T("&"), _T("_") );
-				strCaption = Escape( strCaption );
-				pFile.WriteString( _T("\t\t<control caption=\"") );
-				pFile.WriteString( strCaption );
-				pFile.WriteString( _T("\"/>\r\n") );
-			}
-			else
-			{
-				pFile.WriteString( _T("\t\t<control/>\r\n") );
-			}
-		}
-
-		pFile.WriteString( _T("\t</dialog>\r\n") );
-	//	pFile.Close();
-
-		return TRUE;
-	}
-	// End DialogScan
+		return Dialogscan( pDialog, strName );
 
 	CXMLElement* pBase = NULL;
 	if ( ! m_pDialogs.Lookup( strName, pBase ) )
 		return FALSE;	// Naked dialog
 
-	if ( strCaption != pBase->GetAttributeValue( _T("cookie") ) )
+	CString strCookie = GetDialogCookie( pDialog, pWndTooltips );	// Also parses default tips
+
+	if ( strCookie != pBase->GetAttributeValue( _T("cookie") ) )
 	{
-		theApp.Message( MSG_ERROR, IDS_SKIN_ERROR, _T("Invalid [cookie] attribute in [dialog] element, use: ") + strCaption, pBase->ToString() );
+		theApp.Message( MSG_ERROR, IDS_SKIN_ERROR, _T("Invalid [cookie] attribute in [dialog] element, use: ") + strCookie, pBase->ToString() );
 		return FALSE;
 	}
 
-	strCaption = pBase->GetAttributeValue( _T("caption") );
+	CString strTip;
+	CString strCaption = pBase->GetAttributeValue( _T("caption") );
 	if ( ! strCaption.IsEmpty() ) pDialog->SetWindowText( strCaption );
 
 	CWnd* pWnd = pDialog->GetWindow( GW_CHILD );
@@ -1701,16 +1590,19 @@ BOOL CSkin::Apply(LPCTSTR pszName, CDialog* pDialog, UINT nIconID, CToolTipCtrl*
 
 		if ( pXML->IsNamed( _T("control") ) )
 		{
+			if ( pWndTooltips )
+			{
+				strTip = pXML->GetAttributeValue( L"tip" );
+				if ( ! strTip.IsEmpty() )
+					pWndTooltips->AddTool( pWnd, strTip );
+			}
+
 			strCaption = pXML->GetAttributeValue( _T("caption") );
-			strTip = pXML->GetAttributeValue( L"tip" );
-			if ( pWndTooltips && ! strTip.IsEmpty() )
-				pWndTooltips->AddTool( pWnd, strTip );
-
-			strCaption.Replace( _T("{n}"), _T("\r\n") );
-
 			if ( ! strCaption.IsEmpty() )
 			{
-				if ( (CString) szClass != "Co" )
+				strCaption.Replace( _T("{n}"), _T("\r\n") );
+
+				if ( (CString)szClass != "Co" )
 				{
 					int nPos = strCaption.Find( '_' );
 					if ( nPos >= 0 ) strCaption.SetAt( nPos, '&' );
@@ -1742,6 +1634,154 @@ BOOL CSkin::Apply(LPCTSTR pszName, CDialog* pDialog, UINT nIconID, CToolTipCtrl*
 	}
 
 	return TRUE;
+}
+
+BOOL CSkin::Dialogscan(CDialog* pDialog, CString sName /*=""*/)
+{
+	CStdioFile pFile;
+
+	if ( pFile.Open( Settings.General.Path + _T("\\Dialogs.xml"), CFile::modeReadWrite ) )
+		pFile.Seek( 0, CFile::end );
+	else if ( pFile.Open( Settings.General.Path + _T("\\Dialogs.xml"), CFile::modeWrite|CFile::modeCreate ) )
+		pFile.WriteString( _T("<dialogs>\r\n") );
+	else
+		return FALSE;
+
+	// Obsolete CFile method, for reference:
+	//pFile.Write( "\t<dialog name=\"", 15 );
+	//int nBytes = WideCharToMultiByte( CP_ACP, 0, strName, strName.GetLength(), NULL, 0, NULL, NULL );
+	//LPSTR pBytes = new CHAR[nBytes];
+	//WideCharToMultiByte( CP_ACP, 0, strName, strName.GetLength(), pBytes, nBytes, NULL, NULL );
+	//pFile.Write( pBytes, nBytes );
+	//delete [] pBytes;
+
+	if ( sName.IsEmpty() )
+		sName = pDialog->GetRuntimeClass()->m_lpszClassName;
+
+	CString strCaption, strTip;
+	pDialog->GetWindowText( strCaption );
+	strCaption.Replace( _T("\n"), _T("{n}") );
+	strCaption.Replace( _T("\r"), _T("") );
+	strCaption.Replace( _T("&"), _T("_") );
+	strCaption = Escape( strCaption );
+
+	pFile.WriteString( _T("\t<dialog name=\"") );
+	pFile.WriteString( sName );
+
+	pFile.WriteString( _T("\" cookie=\"") );
+	pFile.WriteString( GetDialogCookie( pDialog ) );
+
+	pFile.WriteString( _T("\" caption=\"") );
+	pFile.WriteString( strCaption );
+
+	pFile.WriteString( _T("\">\r\n") );
+
+	for ( CWnd* pWnd = pDialog->GetWindow( GW_CHILD ) ; pWnd ; pWnd = pWnd->GetNextWindow() )
+	{
+		TCHAR szClass[64];
+		GetClassName( pWnd->GetSafeHwnd(), szClass, 64 );
+
+		// Skip added banner
+		if ( _tcsnicmp( szClass, _T("St"), 3 ) == 0 &&
+			 pWnd->GetDlgCtrlID() == IDC_BANNER )
+			continue;
+
+		strCaption.Empty();
+		strTip.Empty();
+		LoadControlTip( strTip, pWnd->GetDlgCtrlID() );
+
+		if ( _tcsistr( szClass, _T("Static") ) ||
+			 _tcsistr( szClass, _T("Button") ) )
+		{
+			pWnd->GetWindowText( strCaption );
+		}
+		else if ( _tcsistr( szClass, _T("ListBox") ) )
+		{
+			CListBox* pListBox = static_cast< CListBox* >( pWnd );
+			for ( int i = 0 ; i < pListBox->GetCount() ; ++i )
+			{
+				CString strTemp;
+				pListBox->GetText( i, strTemp );
+				if ( ! strCaption.IsEmpty() )
+					strCaption += _T('|');
+				strCaption += strTemp;
+			}
+		}
+		else if ( _tcsistr( szClass, _T("ComboBox") ) )
+		{
+			CComboBox* pComboBox = static_cast< CComboBox* >( pWnd );
+			for ( int i = 0 ; i < pComboBox->GetCount() ; ++i )
+			{
+				CString strTemp;
+				pComboBox->GetLBText( i, strTemp );
+				if ( ! strCaption.IsEmpty() )
+					strCaption += _T('|');
+				strCaption += strTemp;
+			}
+		}
+
+		pFile.WriteString( _T("\t\t<control") );
+
+		if ( ! strCaption.IsEmpty() )
+		{
+			strCaption.Replace( _T("\n"), _T("{n}") );
+			strCaption.Replace( _T("\r"), _T("") );
+			strCaption.Replace( _T("&"), _T("_") );
+			strCaption = Escape( strCaption );
+			pFile.WriteString( _T(" caption=\"") );
+			pFile.WriteString( strCaption );
+			pFile.WriteString( _T("\"") );
+		}
+
+		if ( ! strTip.IsEmpty() )
+		{
+			strTip.Replace( _T("\n"), _T("{n}") );
+			strTip.Replace( _T("\r"), _T("") );
+			pFile.WriteString( _T(" tip=\"") );
+			pFile.WriteString( strTip );
+			pFile.WriteString( _T("\"") );
+		}
+
+		pFile.WriteString( _T("/>\r\n") );
+	}
+
+	pFile.WriteString( _T("\t</dialog>\r\n") );
+	//pFile.Close();
+
+	return TRUE;
+}
+
+CString CSkin::GetDialogCookie(CDialog* pDialog, CToolTipCtrl* pWndTooltips /*=NULL*/)
+{
+	CString strCookie, strTip;
+
+	for ( CWnd* pWnd = pDialog->GetWindow( GW_CHILD ) ; pWnd ; pWnd = pWnd->GetNextWindow() )
+	{
+		pWnd->SetFont( &CoolInterface.m_fntNormal );
+
+		if ( pWndTooltips )
+		{
+			LoadControlTip( strTip, pWnd->GetDlgCtrlID() );
+			if ( ! strTip.IsEmpty() )
+				pWndTooltips->AddTool( pWnd, strTip );
+		}
+
+		TCHAR szClass[3] = { 0, 0, 0 };
+		GetClassName( pWnd->GetSafeHwnd(), szClass, 3 );
+
+		// Skip added banner
+		if ( _tcsnicmp( szClass, _T("St"), 3 ) == 0 &&
+			 pWnd->GetDlgCtrlID() == IDC_BANNER )
+			continue;
+
+		// Skip settings pages
+		if ( pWnd->IsKindOf( RUNTIME_CLASS( CSettingsPage ) ) )
+			continue;
+
+		strCookie += szClass;	// Cookie
+	}
+
+	return strCookie;
 }
 
 CString CSkin::GetDialogCaption(LPCTSTR pszName)
@@ -1908,6 +1948,7 @@ BOOL CSkin::LoadColorScheme(CXMLElement* pBase)
 	pColors.SetAt( _T("taskbox.primary.text"), &Colors.m_crTaskBoxPrimaryText );
 	pColors.SetAt( _T("taskbox.client"), &Colors.m_crTaskBoxClient );	// Deprecated
 	pColors.SetAt( _T("taskbox.back"), &Colors.m_crTaskBoxClient );
+	pColors.SetAt( _T("taskbox.text"), &Colors.m_crTaskBoxText );
 
 	pColors.SetAt( _T("dialog.back"), &Colors.m_crDialog );
 	pColors.SetAt( _T("dialog.text"), &Colors.m_crDialogText );
@@ -1986,6 +2027,7 @@ BOOL CSkin::LoadColorScheme(CXMLElement* pBase)
 	pColors.SetAt( _T("system.textlink"), &Colors.m_crTextLink );
 	pColors.SetAt( _T("system.textlink.selected"), &Colors.m_crTextLinkHot );
 
+	// Deprecated System.Base. first
 	pColors.SetAt( _T("system.base.chat.in"), &Colors.m_crChatIn );
 	pColors.SetAt( _T("system.base.chat.out"), &Colors.m_crChatOut );
 	pColors.SetAt( _T("system.base.chat.null"), &Colors.m_crChatNull );
@@ -2021,6 +2063,54 @@ BOOL CSkin::LoadColorScheme(CXMLElement* pBase)
 	pColors.SetAt( _T("system.base.network.out"), &Colors.m_crNetworkUp );
 	pColors.SetAt( _T("system.base.security.allow"), &Colors.m_crSecurityAllow );
 	pColors.SetAt( _T("system.base.security.deny"), &Colors.m_crSecurityDeny );
+
+	// Preferred System. second
+	pColors.SetAt( _T("system.chat.in"), &Colors.m_crChatIn );
+	pColors.SetAt( _T("system.chat.out"), &Colors.m_crChatOut );
+	pColors.SetAt( _T("system.chat.null"), &Colors.m_crChatNull );
+	pColors.SetAt( _T("system.search.null"), &Colors.m_crSearchNull );
+	pColors.SetAt( _T("system.search.exists"), &Colors.m_crSearchExists );
+	pColors.SetAt( _T("system.search.exists.hit"), &Colors.m_crSearchExistsHit );
+	pColors.SetAt( _T("system.search.exists.selected"), &Colors.m_crSearchExistsSelected );
+	pColors.SetAt( _T("system.search.queued"), &Colors.m_crSearchQueued );
+	pColors.SetAt( _T("system.search.queued.hit"), &Colors.m_crSearchQueuedHit );
+	pColors.SetAt( _T("system.search.queued.selected"), &Colors.m_crSearchQueuedSelected );
+	pColors.SetAt( _T("system.search.ghostrated"), &Colors.m_crSearchGhostrated );
+	pColors.SetAt( _T("system.search.highrated"), &Colors.m_crSearchHighrated );
+	pColors.SetAt( _T("system.search.collection"), &Colors.m_crSearchCollection );
+	pColors.SetAt( _T("system.search.torrent"), &Colors.m_crSearchTorrent );
+	pColors.SetAt( _T("system.transfer.source"), &Colors.m_crTransferSource );
+	pColors.SetAt( _T("system.transfer.ranges"), &Colors.m_crTransferRanges );
+	pColors.SetAt( _T("system.transfer.completed"), &Colors.m_crTransferCompleted );
+	pColors.SetAt( _T("system.transfer.seeding"), &Colors.m_crTransferVerifyPass );
+	pColors.SetAt( _T("system.transfer.failed"), &Colors.m_crTransferVerifyFail );
+	pColors.SetAt( _T("system.transfer.completed.selected"), &Colors.m_crTransferCompletedSelected );
+	pColors.SetAt( _T("system.transfer.seeding.selected"), &Colors.m_crTransferVerifyPassSelected );
+	pColors.SetAt( _T("system.transfer.failed.selected"), &Colors.m_crTransferVerifyFailSelected );
+	pColors.SetAt( _T("system.library"), &Colors.m_crLibraryShared );
+	pColors.SetAt( _T("system.library.shared"), &Colors.m_crLibraryShared );
+	pColors.SetAt( _T("system.library.unshared"), &Colors.m_crLibraryUnshared );
+	pColors.SetAt( _T("system.library.unscanned"), &Colors.m_crLibraryUnscanned );
+	pColors.SetAt( _T("system.library.unsafe"), &Colors.m_crLibraryUnsafe );
+	pColors.SetAt( _T("system.log.debug"), &Colors.m_crLogDebug );
+	pColors.SetAt( _T("system.log.info"), &Colors.m_crLogInfo );
+	pColors.SetAt( _T("system.log.notice"), &Colors.m_crLogNotice );
+	pColors.SetAt( _T("system.log.warning"), &Colors.m_crLogWarning );
+	pColors.SetAt( _T("system.log.error"), &Colors.m_crLogError );
+	pColors.SetAt( _T("system.network.null"), &Colors.m_crNetworkNull );
+	pColors.SetAt( _T("system.network.gnutella"), &Colors.m_crNetworkG1 );
+	pColors.SetAt( _T("system.network.gnutella2"), &Colors.m_crNetworkG2 );
+	pColors.SetAt( _T("system.network.edonkey"), &Colors.m_crNetworkED2K );
+	pColors.SetAt( _T("system.network.g1"), &Colors.m_crNetworkG1 );
+	pColors.SetAt( _T("system.network.g2"), &Colors.m_crNetworkG2 );
+	pColors.SetAt( _T("system.network.ed2k"), &Colors.m_crNetworkED2K );
+	pColors.SetAt( _T("system.network.dc"), &Colors.m_crNetworkDC );
+	pColors.SetAt( _T("system.network.up"), &Colors.m_crNetworkUp );
+	pColors.SetAt( _T("system.network.down"), &Colors.m_crNetworkDown );
+	pColors.SetAt( _T("system.network.in"), &Colors.m_crNetworkDown );
+	pColors.SetAt( _T("system.network.out"), &Colors.m_crNetworkUp );
+	pColors.SetAt( _T("system.security.allow"), &Colors.m_crSecurityAllow );
+	pColors.SetAt( _T("system.security.deny"), &Colors.m_crSecurityDeny );
 
 	pColors.SetAt( _T("dropdownbox.back"), &Colors.m_crDropdownBox );
 	pColors.SetAt( _T("dropdownbox.text"), &Colors.m_crDropdownText );
@@ -2178,7 +2268,7 @@ BOOL CSkin::LoadFonts(CXMLElement* pBase, const CString& strPath)
 
 		if ( pXML->IsNamed( _T("font") ) )
 		{
-			CString strLanguage	= pXML->GetAttributeValue( _T("language") );
+			CString strLanguage = pXML->GetAttributeValue( _T("language") );
 
 			if ( strLanguage.IsEmpty() ||
 				( Settings.General.Language.CompareNoCase( strLanguage ) == 0 ) )
@@ -2647,7 +2737,7 @@ void CSkin::DrawWrappedText(CDC* pDC, CRect* pBox, LPCTSTR pszText, CPoint ptSta
 
 	// Collect stats about the text from the start
 	BOOL bIsRTLStart = FALSE;
-	int nTestStart	= GetTextFlowChange( pszText, &bIsRTLStart );
+	int nTestStart = GetTextFlowChange( pszText, &bIsRTLStart );
 
 	// Guess text direction ( not always works )
 	BOOL bNormalFlow = Settings.General.LanguageRTL ? bIsRTLStart : ! bIsRTLStart;

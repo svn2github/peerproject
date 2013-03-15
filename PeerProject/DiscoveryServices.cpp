@@ -162,24 +162,24 @@ BOOL CDiscoveryServices::Add(LPCTSTR pszAddress, int nType, PROTOCOLID nProtocol
 
 			if ( _tcsnicmp( strAddress, _T("uhc:"), 4 ) == 0 )
 			{
-				pService->m_nProtocolID	= nProtocol = PROTOCOL_G1;
+				pService->m_nProtocolID = nProtocol = PROTOCOL_G1;
 				pService->m_nSubType = CDiscoveryService::dsGnutellaUDPHC;
 			}
 			else if ( _tcsnicmp( strAddress, _T("ukhl:"), 5 ) == 0 )
 			{
-				pService->m_nProtocolID	= nProtocol = PROTOCOL_G2;
+				pService->m_nProtocolID = nProtocol = PROTOCOL_G2;
 				pService->m_nSubType = CDiscoveryService::dsGnutella2UDPKHL;
 			}
 			else if ( _tcsnicmp( strAddress, _T("gnutella2:host:"), 15 ) == 0 ||
 				 _tcsnicmp( strAddress, _T("g2:host:"), 8 ) == 0 )
 			{
-				pService->m_nProtocolID	= nProtocol = PROTOCOL_G2;
+				pService->m_nProtocolID = nProtocol = PROTOCOL_G2;
 				pService->m_nSubType = CDiscoveryService::dsGnutella2TCP;
 			}
 			else if ( _tcsnicmp( strAddress, _T("gnutella1:host:"), 15 ) == 0 ||
 				 _tcsnicmp( strAddress, _T("gnutella:host:"), 14 ) == 0 )
 			{
-				pService->m_nProtocolID	= nProtocol = PROTOCOL_G1;
+				pService->m_nProtocolID = nProtocol = PROTOCOL_G1;
 				pService->m_nSubType = CDiscoveryService::dsGnutellaTCP;
 			}
 		}
@@ -685,7 +685,7 @@ void CDiscoveryServices::AddDefaults()
 		}
 	}
 
-	// Obsolete: If file can't be used or didn't have enough services, drop back to the the in-built list
+	// Obsolete: If file can't be used or didn't have enough services, drop back to the built-in list
 	//if ( ! EnoughServices() )
 	//{
 	//	theApp.Message( MSG_ERROR, _T("Default discovery service load failed") );
@@ -2209,7 +2209,7 @@ BOOL CDiscoveryService::ResolveGnutella()
 
 	if ( time( NULL ) < m_tAccessed + 300 ) return FALSE;
 
-	CString strHost	= m_sAddress;
+	CString strHost = m_sAddress;
 	int nSkip = 0;
 	int nPort = 0;
 	OnGivenHosts();

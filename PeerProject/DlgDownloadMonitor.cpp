@@ -46,7 +46,6 @@ static char THIS_FILE[] = __FILE__;
 
 
 BEGIN_MESSAGE_MAP(CDownloadMonitorDlg, CSkinDialog)
-	//{{AFX_MSG_MAP(CDownloadMonitorDlg)
 	ON_WM_PAINT()
 	ON_WM_DESTROY()
 	ON_WM_TIMER()
@@ -60,7 +59,6 @@ BEGIN_MESSAGE_MAP(CDownloadMonitorDlg, CSkinDialog)
 	ON_BN_CLICKED(IDC_MONITOR_SHOW, OnDownloadShow)
 	ON_BN_CLICKED(IDC_MONITOR_ACTION, OnDownloadAction)
 	ON_BN_CLICKED(IDC_MONITOR_CLOSE, OnDownloadClose)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 CList< CDownloadMonitorDlg* > CDownloadMonitorDlg::m_pWindows;
@@ -95,7 +93,6 @@ CDownloadMonitorDlg::~CDownloadMonitorDlg()
 void CDownloadMonitorDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CSkinDialog::DoDataExchange( pDX );
-	//{{AFX_DATA_MAP(CDownloadMonitorDlg)
 	//DDX_Control(pDX, IDC_MONITOR_STATUS, m_wndStatus);	// Removed
 	DDX_Control(pDX, IDC_PROGRESS, m_wndProgress);
 	DDX_Control(pDX, IDC_MONITOR_SOURCES, m_wndSources);
@@ -109,7 +106,6 @@ void CDownloadMonitorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_MONITOR_ACTION, m_wndAction);
 	DDX_Control(pDX, IDC_MONITOR_SHOW, m_wndShow);
 	DDX_Control(pDX, IDC_MONITOR_CLOSE, m_wndClose);
-	//}}AFX_DATA_MAP
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -187,7 +183,7 @@ BOOL CDownloadMonitorDlg::OnInitDialog()
 	{
 		m_sName = m_pDownload->m_sName;
 		m_wndFile.SetWindowText( m_sName );
-		if ( m_pDownload->IsTorrent() && ( m_pDownload->IsMultiFileTorrent() || m_sName.Find( _T('.') ) < 1 ) )
+		if ( m_pDownload->IsTorrent() && ( m_pDownload->IsMultiFileTorrent() || m_sName.ReverseFind( _T('.') ) < 1 ) )
 			m_wndIcon.SetIcon( CoolInterface.ExtractIcon( IDI_MULTIFILE, FALSE, LVSIL_NORMAL ) );
 		else
 			m_wndIcon.SetIcon( ShellIcons.ExtractIcon( ShellIcons.Get( m_sName, 32 ), 32 ) );
@@ -299,7 +295,7 @@ void CDownloadMonitorDlg::OnTimer( UINT_PTR nIDEvent )
 
 	if ( m_bCompleted ) return;
 
-	bool bCompleted	= m_pDownload->IsCompleted();
+	bool bCompleted = m_pDownload->IsCompleted();
 
 	CString strText, strFormat, strOf, strNA;
 	LoadString( strOf, IDS_GENERAL_OF );
@@ -653,7 +649,7 @@ void CDownloadMonitorDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	case SC_MAXIMIZE:
 		if ( ! m_bTray )
 		{
-			m_pTray.cbSize				= sizeof(m_pTray);
+			m_pTray.cbSize				= sizeof( m_pTray );
 			m_pTray.hWnd				= GetSafeHwnd();
 			m_pTray.uID					= 0;
 			m_pTray.uCallbackMessage	= WM_TRAY;
@@ -707,7 +703,7 @@ HBRUSH CDownloadMonitorDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void CDownloadMonitorDlg::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 {
-	if ( point.x == -1 && point.y == -1 ) 	// Keyboard fix
+	if ( point.x == -1 && point.y == -1 )	// Keyboard fix
 		ClientToScreen( &point );
 
 	CMainWnd* pMainWnd = (CMainWnd*)AfxGetMainWnd();
@@ -725,7 +721,7 @@ void CDownloadMonitorDlg::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 	if ( ! pPopup ) return;
 
 	MENUITEMINFO pInfo;
-	pInfo.cbSize	= sizeof(pInfo);
+	pInfo.cbSize	= sizeof( pInfo );
 	pInfo.fMask		= MIIM_STATE;
 	GetMenuItemInfo( pPopup->GetSafeHmenu(), bCompleted ?
 		ID_DOWNLOADS_LAUNCH_COMPLETE : ID_DOWNLOADS_LAUNCH_COPY, FALSE, &pInfo );

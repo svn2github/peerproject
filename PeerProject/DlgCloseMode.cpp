@@ -1,7 +1,7 @@
 //
 // DlgCloseMode.cpp
 //
-// This file is part of PeerProject (peerproject.org) © 2008-2010
+// This file is part of PeerProject (peerproject.org) © 2008-2012
 // Portions copyright Shareaza Development Team, 2002-2007.
 //
 // PeerProject is free software. You may redistribute and/or modify it
@@ -27,10 +27,8 @@ static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif	// Debug
 
-BEGIN_MESSAGE_MAP(CCloseModeDlg, CSkinDialog)
-	//{{AFX_MSG_MAP(CCloseModeDlg)
-	//}}AFX_MSG_MAP
-END_MESSAGE_MAP()
+//BEGIN_MESSAGE_MAP(CCloseModeDlg, CSkinDialog)
+//END_MESSAGE_MAP()
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -39,16 +37,12 @@ END_MESSAGE_MAP()
 CCloseModeDlg::CCloseModeDlg(CWnd* pParent) : CSkinDialog( CCloseModeDlg::IDD, pParent )
 	, m_nMode ( -1 )
 {
-	//{{AFX_DATA_INIT(CCloseModeDlg)
-	//}}AFX_DATA_INIT
 }
 
 void CCloseModeDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CSkinDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CCloseModeDlg)
 	DDX_Radio(pDX, IDC_CLOSE_0, m_nMode);
-	//}}AFX_DATA_MAP
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -60,19 +54,10 @@ BOOL CCloseModeDlg::OnInitDialog()
 
 	SkinMe( _T("CCloseModeDlg"), IDR_MAINFRAME );
 
-	switch ( Settings.General.CloseMode )
-	{
-	case 0:
-	case 2:
+	if ( Settings.General.CloseMode )
+		m_nMode = Settings.General.CloseMode - 1;
+	else
 		m_nMode = 0;
-		break;
-	case 1:
-		m_nMode = 1;
-		break;
-	case 3:
-		m_nMode = 2;
-		break;
-	}
 
 	UpdateData( FALSE );
 
@@ -83,18 +68,10 @@ void CCloseModeDlg::OnOK()
 {
 	UpdateData();
 
-	switch ( m_nMode )
-	{
-	case 0:
-		Settings.General.CloseMode = 1;
-		break;
-	case 1:
-		Settings.General.CloseMode = 2;
-		break;
-	case 2:
-		Settings.General.CloseMode = 3;
-		break;
-	}
+	Settings.General.CloseMode = m_nMode + 1;
 
-	CSkinDialog::OnOK();
+	if ( Settings.General.CloseMode == 2 )
+		CSkinDialog::OnOK();
+	else
+		CSkinDialog::OnCancel();
 }

@@ -62,7 +62,6 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNCREATE(CBaseMatchWnd, CPanelWnd)
 
 BEGIN_MESSAGE_MAP(CBaseMatchWnd, CPanelWnd)
-	//{{AFX_MSG_MAP(CBaseMatchWnd)
 	ON_WM_CREATE()
 	ON_WM_DESTROY()
 	ON_WM_SIZE()
@@ -112,7 +111,6 @@ BEGIN_MESSAGE_MAP(CBaseMatchWnd, CPanelWnd)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_SCHEMA_MENU_MIN, ID_SCHEMA_MENU_MAX, OnUpdateBlocker)
 	ON_UPDATE_COMMAND_UI_RANGE(3000, 3100, OnUpdateFilters)
 	ON_COMMAND_RANGE(3000, 3100, OnFilters)
-	//}}AFX_MSG_MAP
 
 END_MESSAGE_MAP()
 
@@ -161,7 +159,9 @@ int CBaseMatchWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndList.Create( m_pMatches, this );
 //	m_wndList.ModifyStyle( 0, WS_TABSTOP );
 
+#ifndef WIN64
 	if ( ! theApp.m_bIsWin2000 )
+#endif
 		m_wndList.ModifyStyleEx( 0, WS_EX_COMPOSITED );		// Stop rare flicker XP+, CPU intensive
 
 	if ( ! m_wndToolBar.Create( this, WS_CHILD|WS_CLIPSIBLINGS|WS_TABSTOP|WS_VISIBLE|CBRS_NOALIGN ) ) return -1;
@@ -207,7 +207,7 @@ void CBaseMatchWnd::OnSize(UINT nType, int cx, int cy)
 
 void CBaseMatchWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 {
-	if ( point.x == -1 && point.y == -1 ) 	// Keyboard fix
+	if ( point.x == -1 && point.y == -1 )	// Keyboard fix
 		ClientToScreen( &point );
 
 	if ( m_wndList.HitTestHeader( point ) && m_wndList.m_pSchema != NULL )
@@ -272,9 +272,10 @@ void CBaseMatchWnd::OnDrawItem(int /*nIDCtl*/, LPDRAWITEMSTRUCT lpDrawItemStruct
 
 void CBaseMatchWnd::OnDownload(BOOL bAddToHead)
 {
-	CSingleLock pSingleLock( &m_pMatches->m_pSection, TRUE );
 	CList< CMatchFile* > pFiles;
 	CList< CQueryHit* > pHits;
+
+	CSingleLock pSingleLock( &m_pMatches->m_pSection, TRUE );
 
 	for ( POSITION pos = m_pMatches->m_pSelectedFiles.GetHeadPosition() ; pos ; )
 	{
@@ -626,7 +627,9 @@ void CBaseMatchWnd::OnLibraryBitziWeb()
 
 void CBaseMatchWnd::OnUpdateSearchForThis(CCmdUI* pCmdUI)
 {
-	CSingleLock pLock( &m_pMatches->m_pSection, TRUE );
+	CSingleLock pLock( &m_pMatches->m_pSection );
+	if ( ! pLock.Lock( 200 ) ) return;
+
 	CRelatedSearch pSearch( m_pMatches->GetSelectedFile( TRUE ) );
 	pCmdUI->Enable( pSearch.CanSearchForThis() );
 }
@@ -634,6 +637,7 @@ void CBaseMatchWnd::OnUpdateSearchForThis(CCmdUI* pCmdUI)
 void CBaseMatchWnd::OnSearchForThis()
 {
 	CSingleLock pLock( &m_pMatches->m_pSection, TRUE );
+
 	CRelatedSearch pSearch( m_pMatches->GetSelectedFile( TRUE ) );
 	pLock.Unlock();
 	pSearch.RunSearchForThis();
@@ -641,7 +645,9 @@ void CBaseMatchWnd::OnSearchForThis()
 
 void CBaseMatchWnd::OnUpdateSearchForSimilar(CCmdUI* pCmdUI)
 {
-	CSingleLock pLock( &m_pMatches->m_pSection, TRUE );
+	CSingleLock pLock( &m_pMatches->m_pSection );
+	if ( ! pLock.Lock( 200 ) ) return;
+
 	CRelatedSearch pSearch( m_pMatches->GetSelectedFile( TRUE ) );
 	pCmdUI->Enable( pSearch.CanSearchForSimilar() );
 }
@@ -649,6 +655,7 @@ void CBaseMatchWnd::OnUpdateSearchForSimilar(CCmdUI* pCmdUI)
 void CBaseMatchWnd::OnSearchForSimilar()
 {
 	CSingleLock pLock( &m_pMatches->m_pSection, TRUE );
+
 	CRelatedSearch pSearch( m_pMatches->GetSelectedFile( TRUE ) );
 	pLock.Unlock();
 	pSearch.RunSearchForSimilar();
@@ -656,7 +663,9 @@ void CBaseMatchWnd::OnSearchForSimilar()
 
 void CBaseMatchWnd::OnUpdateSearchForArtist(CCmdUI* pCmdUI)
 {
-	CSingleLock pLock( &m_pMatches->m_pSection, TRUE );
+	CSingleLock pLock( &m_pMatches->m_pSection );
+	if ( ! pLock.Lock( 200 ) ) return;
+
 	CRelatedSearch pSearch( m_pMatches->GetSelectedFile( TRUE ) );
 	pCmdUI->Enable( pSearch.CanSearchForArtist() );
 }
@@ -664,6 +673,7 @@ void CBaseMatchWnd::OnUpdateSearchForArtist(CCmdUI* pCmdUI)
 void CBaseMatchWnd::OnSearchForArtist()
 {
 	CSingleLock pLock( &m_pMatches->m_pSection, TRUE );
+
 	CRelatedSearch pSearch( m_pMatches->GetSelectedFile( TRUE ) );
 	pLock.Unlock();
 	pSearch.RunSearchForArtist();
@@ -671,7 +681,9 @@ void CBaseMatchWnd::OnSearchForArtist()
 
 void CBaseMatchWnd::OnUpdateSearchForAlbum(CCmdUI* pCmdUI)
 {
-	CSingleLock pLock( &m_pMatches->m_pSection, TRUE );
+	CSingleLock pLock( &m_pMatches->m_pSection );
+	if ( ! pLock.Lock( 200 ) ) return;
+
 	CRelatedSearch pSearch( m_pMatches->GetSelectedFile( TRUE ) );
 	pCmdUI->Enable( pSearch.CanSearchForAlbum() );
 }
@@ -679,6 +691,7 @@ void CBaseMatchWnd::OnUpdateSearchForAlbum(CCmdUI* pCmdUI)
 void CBaseMatchWnd::OnSearchForAlbum()
 {
 	CSingleLock pLock( &m_pMatches->m_pSection, TRUE );
+
 	CRelatedSearch pSearch( m_pMatches->GetSelectedFile( TRUE ) );
 	pLock.Unlock();
 	pSearch.RunSearchForAlbum();
@@ -686,7 +699,9 @@ void CBaseMatchWnd::OnSearchForAlbum()
 
 void CBaseMatchWnd::OnUpdateSearchForSeries(CCmdUI* pCmdUI)
 {
-	CSingleLock pLock( &m_pMatches->m_pSection, TRUE );
+	CSingleLock pLock( &m_pMatches->m_pSection );
+	if ( ! pLock.Lock( 200 ) ) return;
+
 	CRelatedSearch pSearch( m_pMatches->GetSelectedFile( TRUE ) );
 	pCmdUI->Enable( pSearch.CanSearchForSeries() );
 }
@@ -694,6 +709,7 @@ void CBaseMatchWnd::OnUpdateSearchForSeries(CCmdUI* pCmdUI)
 void CBaseMatchWnd::OnSearchForSeries()
 {
 	CSingleLock pLock( &m_pMatches->m_pSection, TRUE );
+
 	CRelatedSearch pSearch( m_pMatches->GetSelectedFile( TRUE ) );
 	pLock.Unlock();
 	pSearch.RunSearchForSeries();
@@ -906,7 +922,6 @@ void CBaseMatchWnd::OnTimer(UINT_PTR nIDEvent)
 	else if ( ( nIDEvent == 2 && m_bUpdate ) || nIDEvent == 7 )
 	{
 		CSingleLock pLock( &m_pMatches->m_pSection );
-
 		if ( pLock.Lock( 50 ) )
 		{
 			m_bUpdate = FALSE;
@@ -975,9 +990,9 @@ HRESULT CBaseMatchWnd::GetGenericView(IGenericView** ppView)
 void CBaseMatchWnd::Serialize(CArchive& ar)
 {
 	m_tModify = 0;
+	CString strSchema;
 
 	CSingleLock pLock( &m_pMatches->m_pSection, TRUE );
-	CString strSchema;
 
 	if ( ar.IsStoring() )
 	{

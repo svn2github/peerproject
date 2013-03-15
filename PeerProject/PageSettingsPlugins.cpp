@@ -33,7 +33,6 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNCREATE(CPluginsSettingsPage, CSettingsPage)
 
 BEGIN_MESSAGE_MAP(CPluginsSettingsPage, CSettingsPage)
-	//{{AFX_MSG_MAP(CPluginsSettingsPage)
 	ON_WM_TIMER()
 	ON_NOTIFY(LVN_ITEMCHANGING, IDC_PLUGINS, OnItemChangingPlugins)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_PLUGINS, OnItemChangedPlugins)
@@ -41,7 +40,6 @@ BEGIN_MESSAGE_MAP(CPluginsSettingsPage, CSettingsPage)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_PLUGINS, OnCustomDrawPlugins)
 	ON_BN_CLICKED(IDC_PLUGINS_SETUP, OnPluginsSetup)
 	ON_BN_CLICKED(IDC_PLUGINS_WEB, OnPluginsWeb)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 
@@ -50,8 +48,6 @@ END_MESSAGE_MAP()
 
 CPluginsSettingsPage::CPluginsSettingsPage() : CSettingsPage( CPluginsSettingsPage::IDD )
 {
-	//{{AFX_DATA_INIT(CPluginsSettingsPage)
-	//}}AFX_DATA_INIT
 }
 
 CPluginsSettingsPage::~CPluginsSettingsPage()
@@ -61,12 +57,10 @@ CPluginsSettingsPage::~CPluginsSettingsPage()
 void CPluginsSettingsPage::DoDataExchange(CDataExchange* pDX)
 {
 	CSettingsPage::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CPluginsSettingsPage)
 	DDX_Control(pDX, IDC_PLUGINS_SETUP, m_wndSetup);
 	DDX_Control(pDX, IDC_SKIN_DESC, m_wndDesc);
 	DDX_Control(pDX, IDC_SKIN_NAME, m_wndName);
 	DDX_Control(pDX, IDC_PLUGINS, m_wndList);
-	//}}AFX_DATA_MAP
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -90,8 +84,8 @@ BOOL CPluginsSettingsPage::OnInitDialog()
 	m_wndList.SetExtendedStyle( LVS_EX_FULLROWSELECT|LVS_EX_CHECKBOXES );
 
 	//LVGROUP pGroup;
-	//pGroup.cbSize		= sizeof(pGroup);
-	//pGroup.mask			= LVGF_ALIGN|LVGF_GROUPID|LVGF_HEADER;
+	//pGroup.cbSize		= sizeof( pGroup );
+	//pGroup.mask		= LVGF_ALIGN|LVGF_GROUPID|LVGF_HEADER;
 	//pGroup.uAlign		= LVGA_HEADER_LEFT;
 	//pGroup.pszHeader	= _T("General Plugins");
 	//pGroup.cchHeader	= _tcslen( pGroup.pszHeader );
@@ -149,7 +143,7 @@ void CPluginsSettingsPage::OnItemChangedPlugins(NMHDR* pNMHDR, LRESULT* pResult)
 		m_wndList.SetItemText( nItem, 2, strExt );
 	}
 	else if ( ( ( pNMListView->uOldState >> 12 ) & LVIS_SELECTED ) != 0 &&
-			( ( pNMListView->uNewState >> 12 ) & LVIS_SELECTED ) == 0 )
+			  ( ( pNMListView->uNewState >> 12 ) & LVIS_SELECTED ) == 0 )
 	{
 		CString strExt = m_wndList.GetItemText( nItem, 2 );
 		if ( ! strExt.IsEmpty() )
@@ -326,7 +320,7 @@ void CPluginsSettingsPage::EnumerateMiscPlugins()
 	HKEY hPlugins = NULL;
 
 	if ( ERROR_SUCCESS != RegOpenKeyEx( HKEY_CURRENT_USER,
-		REGISTRY_KEY _T("\\Plugins"), 0, KEY_READ, &hPlugins ) )
+		 REGISTRY_KEY _T("\\Plugins"), 0, KEY_READ, &hPlugins ) )
 		return;
 
 	for ( DWORD nIndex = 0 ; ; nIndex++ )
@@ -340,8 +334,7 @@ void CPluginsSettingsPage::EnumerateMiscPlugins()
 
 		if ( _tcsicmp( szName, _T("General") ) != 0 )
 		{
-			if ( ERROR_SUCCESS == RegOpenKeyEx( hPlugins, szName, 0, KEY_READ,
-				 &hCategory ) )
+			if ( ERROR_SUCCESS == RegOpenKeyEx( hPlugins, szName, 0, KEY_READ, &hCategory ) )
 			{
 				EnumerateMiscPlugins( szName, hCategory );
 				RegCloseKey( hCategory );
@@ -385,14 +378,14 @@ void CPluginsSettingsPage::EnumerateMiscPlugins(LPCTSTR pszType, HKEY hRoot)
 						{
 							TCHAR* pszExtValue = new TCHAR[ nLength ];
 							if ( ERROR_SUCCESS == RegQueryValueEx( hUserPlugins, (LPCTSTR)szValue,
-													NULL, &nType, (LPBYTE)pszExtValue, &nLength ) )
+									NULL, &nType, (LPBYTE)pszExtValue, &nLength ) )
 							{
 								// Found under user options
 								strExts.SetString( pszExtValue );
 							}
 							delete [] pszExtValue;
 						}
-						else if ( nType == REG_DWORD ) // Upgrade from REG_DWORD to REG_SZ
+						else if ( nType == REG_DWORD )	// Upgrade from REG_DWORD to REG_SZ
 						{
 							BOOL bEnabled = theApp.GetProfileInt( _T("Plugins"), szValue, TRUE );
 							strExts = bEnabled ? _T("") : _T("-");
@@ -438,7 +431,7 @@ void CPluginsSettingsPage::AddMiscPlugin(LPCTSTR /*pszType*/, LPCTSTR pszCLSID, 
 
 	if ( ERROR_SUCCESS == RegOpenKeyEx( HKEY_CLASSES_ROOT, strClass, 0, KEY_READ, &hClass ) )
 	{
-		DWORD nValue = MAX_PATH * sizeof(TCHAR), nType = REG_SZ;
+		DWORD nValue = MAX_PATH * sizeof( TCHAR ), nType = REG_SZ;
 		TCHAR szValue[ MAX_PATH ];
 
 		if ( ERROR_SUCCESS == RegQueryValueEx( hClass, NULL, NULL, &nType,
@@ -467,7 +460,7 @@ CString CPluginsSettingsPage::GetPluginComments(LPCTSTR pszCLSID) const
 
 	if ( ERROR_SUCCESS == RegOpenKeyEx( HKEY_CLASSES_ROOT, strPath, 0, KEY_READ, &hClassServer ) )
 	{
-		DWORD nValue = MAX_PATH * sizeof(TCHAR), nType = REG_SZ;
+		DWORD nValue = MAX_PATH * sizeof( TCHAR ), nType = REG_SZ;
 		TCHAR szPluginPath[ MAX_PATH ];
 
 		if ( ERROR_SUCCESS == RegQueryValueEx( hClassServer, NULL, NULL, &nType,

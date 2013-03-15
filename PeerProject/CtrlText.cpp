@@ -16,7 +16,7 @@
 // (http://www.gnu.org/licenses/agpl.html)
 //
 
-// System Window Display (Network Tab)
+// System Window Log Display (Network Tab)
 
 #include "StdAfx.h"
 #include "Settings.h"
@@ -36,16 +36,14 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNCREATE(CTextCtrl, CWnd)
 
 BEGIN_MESSAGE_MAP(CTextCtrl, CWnd)
-	//{{AFX_MSG_MAP(CTextCtrl)
-	ON_WM_VSCROLL()
 	ON_WM_ERASEBKGND()
 	ON_WM_PAINT()
 	ON_WM_SIZE()
+	ON_WM_VSCROLL()
+	ON_WM_KEYDOWN()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_RBUTTONDOWN()
-	ON_WM_KEYDOWN()
 	ON_WM_MOUSEWHEEL()
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 #define LINE_BUFFER_LIMIT		4096
@@ -64,20 +62,9 @@ CTextCtrl::CTextCtrl()
 	, m_bProcess	( TRUE )
 	, m_nLastClicked ( -1 )
 {
-	// ToDo: Add new log color codes to CColors.m_cr...
-
 	// Severity (Text)
-	m_crText[0] = RGB( 255, 0, 0 );				// red			- MSG_ERROR
-	m_crText[1] = RGB( 255, 128, 64 );			// orange		- MSG_WARNING
-	m_crText[2] = RGB( 0, 0, 128 );				// dark blue	- MSG_NOTICE
-	m_crText[3] = RGB( 0, 0, 0 );				// black		- MSG_INFO
-	m_crText[4] = RGB( 128, 128, 128 );			// gray			- MSG_DEBUG
-
-	// Facility (Window) DISABLED	ToDo: Fix MSG_FACILITY_MASK
-	m_crBackground[0] = Colors.m_crWindow;		// whitespace	- MSG_FACILITY_DEFAULT
-	m_crBackground[1] = RGB( 255, 255, 224 );	// light yellow	- MSG_FACILITY_SEARCH
-	m_crBackground[2] = RGB( 224, 255, 224 );	// light green	- MSG_FACILITY_INCOMING
-	m_crBackground[3] = RGB( 224, 240, 255 );	// light blue	- MSG_FACILITY_OUTGOING
+	//m_crText[0] = Colors.m_crLog...
+	OnSkinChange();
 
 	m_pFont.CreateFont( -(int)Settings.Fonts.DefaultSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
 		DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, theApp.m_nFontQuality,
@@ -121,7 +108,7 @@ void CTextCtrl::Add(const CLogMessage* pMsg)
 void CTextCtrl::AddLine(WORD nType, const CString& strLine)
 {
 	ASSERT( ( nType & MSG_SEVERITY_MASK ) < ( sizeof m_crText / sizeof m_crText[0] ) );
-	ASSERT( ( ( nType & MSG_FACILITY_MASK ) >> 8 ) < ( sizeof m_crBackground / sizeof m_crBackground[0] ) );
+//	ASSERT( ( ( nType & MSG_FACILITY_MASK ) >> 8 ) < ( sizeof m_crBackground / sizeof m_crBackground[0] ) );
 
 	CQuickLock pLock( m_pSection );
 
@@ -170,8 +157,9 @@ void CTextCtrl::Clear(BOOL bInvalidate)
 void CTextCtrl::UpdateScroll(BOOL bFull)
 {
 	SCROLLINFO si = {};
-
-	si.cbSize = sizeof(si);
+	si.cbSize = sizeof( si );
+	si.fMask	= SIF_POS;
+	si.nPos		= m_nPosition;
 
 	if ( bFull )
 	{
@@ -179,15 +167,9 @@ void CTextCtrl::UpdateScroll(BOOL bFull)
 		GetClientRect( &rc );
 
 		si.fMask	= SIF_POS|SIF_PAGE|SIF_RANGE|SIF_DISABLENOSCROLL;
-		si.nPos		= m_nPosition;
 		si.nPage	= rc.Height() / m_nHeight;
 		si.nMax		= m_nTotal + si.nPage - 1;
 		si.nMin		= 0;
-	}
-	else
-	{
-		si.fMask	= SIF_POS;
-		si.nPos		= m_nPosition;
 	}
 
 	SetScrollInfo( SB_VERT, &si );
@@ -199,9 +181,9 @@ void CTextCtrl::UpdateScroll(BOOL bFull)
 void CTextCtrl::OnVScroll(UINT nSBCode, UINT /*nPos*/, CScrollBar* /*pScrollBar*/)
 {
 	CQuickLock pLock( m_pSection );
-	SCROLLINFO si = {};
 
-	si.cbSize	= sizeof(si);
+	SCROLLINFO si = {};
+	si.cbSize	= sizeof( si );
 	si.fMask	= SIF_ALL;
 
 	GetScrollInfo( SB_VERT, &si );
@@ -298,7 +280,8 @@ void CTextCtrl::OnPaint()
 				rcPaint.top -= ( pLine->m_nLine - 1 ) * m_nHeight;
 			dc.SetBkMode( TRANSPARENT );
 			CoolInterface.DrawWatermark( &dc, &rcPaint, &Images.m_bmSelected, FALSE ); 	// No overdraw
-			dc.SetTextColor( m_crText[ pLine->m_nType & MSG_SEVERITY_MASK ] );
+			WORD nType = pLine->m_nType & MSG_SEVERITY_MASK;
+			dc.SetTextColor( nType > 2 ? Colors.m_crHighlight : m_crText[ nType ] );
 			pLine->Paint( &dc, &rcLine, TRUE );
 			dc.SetBkMode( OPAQUE );
 		}
@@ -378,6 +361,24 @@ void CTextCtrl::OnSize(UINT nType, int cx, int cy)
 {
 	CWnd::OnSize( nType, cx, cy );
 	m_bProcess = TRUE;
+}
+
+void CTextCtrl::OnSkinChange()
+{
+	// Severity (Text)
+	m_crText[0] = Colors.m_crLogError;			// red			- MSG_ERROR
+	m_crText[1] = Colors.m_crLogWarning;		// orange		- MSG_WARNING
+	m_crText[2] = Colors.m_crLogNotice;			// dark blue	- MSG_NOTICE
+	m_crText[3] = Colors.m_crLogInfo;			// black		- MSG_INFO
+	m_crText[4] = Colors.m_crLogDebug;			// gray			- MSG_DEBUG
+
+	// Facility (Window) DISABLED	ToDo: Fix MSG_FACILITY_MASK
+	//m_crBackground[0] = Colors.m_crWindow;	// whitespace	- MSG_FACILITY_DEFAULT
+	//m_crBackground[1] = RGB( 255, 255, 224 );	// light yellow	- MSG_FACILITY_SEARCH
+	//m_crBackground[2] = RGB( 224, 255, 224 );	// light green	- MSG_FACILITY_INCOMING
+	//m_crBackground[3] = RGB( 224, 240, 255 );	// light blue	- MSG_FACILITY_OUTGOING
+
+	OnSize( 0, 0, 0 );
 }
 
 void CTextCtrl::OnLButtonDown(UINT nFlags, CPoint point)
@@ -571,7 +572,7 @@ int CTextLine::Process(CDC* pDC, int nWidth)
 void CTextLine::AddLine(int nLength)
 {
 	int* pLine = new int[ m_nLine + 1 ];
-	if ( m_pLine ) CopyMemory( pLine, m_pLine, m_nLine * sizeof(int) );
+	if ( m_pLine ) CopyMemory( pLine, m_pLine, m_nLine * sizeof( int ) );
 	delete [] m_pLine;
 	m_pLine = pLine;
 	m_pLine[ m_nLine++ ] = nLength;
@@ -583,7 +584,7 @@ void CTextLine::AddLine(int nLength)
 void CTextLine::Paint(CDC* pDC, CRect* pRect, BOOL bSkinned)
 {
 	const int nHeight = pRect->bottom - pRect->top;		// m_nHeight
-	LPCTSTR pszLine	= m_sText;
+	LPCTSTR pszLine = m_sText;
 
 	// Single-line increment:
 

@@ -91,11 +91,20 @@ void CLiveList::Apply(CListCtrl* pCtrl, BOOL bSort)
 {
 	ASSERT_VALID( this );
 
-	CQuickLock oLock( m_pSection );
-
 	BOOL bModified = FALSE;
 
-	for ( int nItem = 0 ; nItem < pCtrl->GetItemCount() ; nItem++ )
+	int nCount = pCtrl->GetItemCount();
+
+// Start flicker workaround for VS2012
+//#if defined(_MSC_VER) && (_MSC_VER >= 1700)		// #ifdef _USING_V110_SDK71_
+#if defined(_MSC_PLATFORM_TOOLSET) && (_MSC_PLATFORM_TOOLSET >= 110)		// Custom define
+	pCtrl->SendMessage( WM_SETREDRAW, FALSE );
+	const int nSelected = pCtrl->GetNextItem( -1, LVNI_SELECTED );
+#endif
+
+	CQuickLock oLock( m_pSection );
+
+	for ( int nItem = 0 ; nItem < nCount ; nItem++ )
 	{
 		DWORD nParam = (DWORD)pCtrl->GetItemData( nItem );
 		CLiveItem* pItem;
@@ -113,10 +122,11 @@ void CLiveList::Apply(CListCtrl* pCtrl, BOOL bSort)
 		{
 			pCtrl->DeleteItem( nItem-- );
 			bModified = TRUE;
+			nCount--;
 		}
 	}
 
-	int nCount = pCtrl->GetItemCount();
+	nCount = pCtrl->GetItemCount();		// ToDo: Is this double-check needed?
 
 	for ( POSITION pos = m_pItems.GetStartPosition() ; pos ; )
 	{
@@ -135,6 +145,17 @@ void CLiveList::Apply(CListCtrl* pCtrl, BOOL bSort)
 
 	if ( bModified && bSort )
 		Sort( pCtrl, -1 );
+
+// End flicker workaround for VS2012
+//#if defined(_MSC_VER) && (_MSC_VER >= 1700)		// #ifdef _USING_V110_SDK71_
+#if defined(_MSC_PLATFORM_TOOLSET) && (_MSC_PLATFORM_TOOLSET >= 110)		// Custom define
+	pCtrl->SendMessage( WM_SETREDRAW, TRUE );
+	if ( nSelected >= 0 )
+	{
+		pCtrl->SetItemState( nSelected, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED );
+		pCtrl->SetSelectionMark( nSelected );
+	}
+#endif
 }
 
 
@@ -355,8 +376,8 @@ BOOL CLiveItem::Update(CListCtrl* pCtrl, int nItem, int nColumns)
 //	if ( nItem < 0 ) return FALSE;
 //
 //	LV_ITEM pItem = {};
-//	pItem.mask	= LVIF_IMAGE;
-//	pItem.iItem	= nItem;
+//	pItem.mask  = LVIF_IMAGE;
+//	pItem.iItem = nItem;
 //	pItem.iSubItem = nColumn;
 //
 //	if ( ! pCtrl->GetItem( &pItem ) ) return FALSE;
@@ -384,7 +405,7 @@ void CLiveList::Sort(CListCtrl* pCtrl, int nColumn, BOOL bGraphic)
 {
 	ASSERT_VALID( pCtrl );
 
-	int nOldColumn	= (int)GetWindowLongPtr( pCtrl->GetSafeHwnd(), GWLP_USERDATA );
+	int nOldColumn = (int)GetWindowLongPtr( pCtrl->GetSafeHwnd(), GWLP_USERDATA );
 
 	if ( nColumn == -1 )
 	{
@@ -463,10 +484,10 @@ int CALLBACK CLiveList::SortCallback(LPARAM lParam1, LPARAM lParam2, LPARAM lPar
 	int nColumn = (int)GetWindowLongPtr( pList->GetSafeHwnd(), GWLP_USERDATA );
 
 	LV_FINDINFO pFind;
-	pFind.flags		= LVFI_PARAM;
-	pFind.lParam	= lParam1;
+	pFind.flags  = LVFI_PARAM;
+	pFind.lParam = lParam1;
 	int nA = pList->FindItem( &pFind );
-	pFind.lParam	= lParam2;
+	pFind.lParam = lParam2;
 	int nB = pList->FindItem( &pFind );
 
 	CString sA( pList->GetItemText( nA, abs( nColumn ) - 1 ) );
@@ -550,6 +571,7 @@ int CLiveList::SortProc(LPCTSTR sB, LPCTSTR sA, BOOL bNumeric)
 			return 0;
 		}
 	}
+
 	if ( bNumeric || ( IsNumber( sA ) && IsNumber( sB ) ) )
 	{
 		double nA = 0, nB = 0;
@@ -581,10 +603,8 @@ int CLiveList::SortProc(LPCTSTR sB, LPCTSTR sA, BOOL bNumeric)
 
 		return 0;
 	}
-	else
-	{
-		return _tcsicoll( sA, sB );
-	}
+
+	return _tcsicoll( sA, sB );
 }
 
 BOOL CLiveList::IsNumber(LPCTSTR pszString)

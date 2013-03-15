@@ -120,8 +120,10 @@ int CUploadsWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_wndUploads.Create( this, IDC_UPLOADS );
 
+#ifndef WIN64
 	if ( ! theApp.m_bIsWin2000 )
-		m_wndUploads.ModifyStyleEx( 0, WS_EX_COMPOSITED );	// Stop flicker XP+, CPU intensive!
+#endif
+		m_wndUploads.ModifyStyleEx( 0, WS_EX_COMPOSITED );	// Stop flicker XP+, CPU intensive
 
 	if ( ! m_wndToolBar.Create( this, WS_CHILD|WS_VISIBLE|CBRS_NOALIGN, AFX_IDW_TOOLBAR ) ) return -1;
 	m_wndToolBar.SetBarStyle( m_wndToolBar.GetBarStyle() | CBRS_TOOLTIPS | CBRS_BORDER_TOP );
@@ -135,8 +137,8 @@ int CUploadsWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	SetTimer( 4, 5000, NULL );
 	PostMessage( WM_TIMER, 4 );
 
-	m_tSel			= 0;
-	m_tLastUpdate	= 0;
+	m_tSel = 0;
+	m_tLastUpdate = 0;
 
 	return 0;
 }
@@ -225,7 +227,7 @@ void CUploadsWnd::OnTimer(UINT_PTR nIDEvent)
 
 void CUploadsWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 {
-	if ( point.x == -1 && point.y == -1 ) 	// Keyboard fix
+	if ( point.x == -1 && point.y == -1 )	// Keyboard fix
 	{
 		m_wndUploads.ClientToScreen( &point );
 		Skin.TrackPopupMenu( _T("CUploadsWnd.Default"), point, ID_UPLOADS_HELP );
@@ -390,8 +392,9 @@ void CUploadsWnd::OnUpdateUploadsDisconnect(CCmdUI* pCmdUI)
 
 void CUploadsWnd::OnUploadsDisconnect()
 {
-	CSingleLock pLock( &Transfers.m_pSection, TRUE );
 	CList<CUploadFile*> pList;
+
+	CSingleLock pLock( &Transfers.m_pSection, TRUE );
 
 	for ( POSITION pos = UploadFiles.GetIterator() ; pos ; )
 	{

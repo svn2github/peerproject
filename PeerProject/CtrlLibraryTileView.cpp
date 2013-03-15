@@ -43,7 +43,6 @@ static char THIS_FILE[] = __FILE__;
 
 
 BEGIN_MESSAGE_MAP(CLibraryTileView, CLibraryView)
-	//{{AFX_MSG_MAP(CLibraryTileView)
 	ON_WM_CREATE()
 	ON_WM_DESTROY()
 	ON_WM_SIZE()
@@ -54,8 +53,8 @@ BEGIN_MESSAGE_MAP(CLibraryTileView, CLibraryView)
 	ON_WM_LBUTTONUP()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_RBUTTONDOWN()
-	ON_WM_KEYDOWN()
 	ON_WM_LBUTTONDBLCLK()
+	ON_WM_KEYDOWN()
 	ON_WM_CONTEXTMENU()
 	ON_WM_GETDLGCODE()
 	ON_WM_CHAR()
@@ -65,7 +64,6 @@ BEGIN_MESSAGE_MAP(CLibraryTileView, CLibraryView)
 	ON_COMMAND(ID_LIBRARY_ALBUM_DELETE, OnLibraryAlbumDelete)
 	ON_UPDATE_COMMAND_UI(ID_LIBRARY_ALBUM_PROPERTIES, OnUpdateLibraryAlbumProperties)
 	ON_COMMAND(ID_LIBRARY_ALBUM_PROPERTIES, OnLibraryAlbumProperties)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 
@@ -337,8 +335,8 @@ bool CLibraryTileView::SelectTo(iterator pTile)
 	{
 		m_pFocus = pTile;
 
-		iterator pFirst	= m_pFirst;
-		iterator pFocus	= m_pFocus;
+		iterator pFirst = m_pFirst;
+		iterator pFocus = m_pFocus;
 
 		if ( GetAsyncKeyState( VK_CONTROL ) & 0x8000 )
 		{
@@ -407,18 +405,15 @@ void CLibraryTileView::SelectTo(int nDelta)
 	{
 		pFocus = begin();
 	}
+	else if ( nDelta < 0 )
+	{
+		for ( ; nDelta != 0 && pFocus != begin() ; --pFocus, ++nDelta );
+	}
 	else
 	{
-		if ( nDelta < 0 )
-		{
-			for ( ; nDelta != 0 && pFocus != begin() ; --pFocus, ++nDelta );
-		}
-		else
-		{
-			for ( ; nDelta != 0 && pFocus != end() ; ++pFocus, --nDelta );
-			if ( pFocus == end() )
-				--pFocus;
-		}
+		for ( ; nDelta != 0 && pFocus != end() ; ++pFocus, --nDelta );
+		if ( pFocus == end() )
+			--pFocus;
 	}
 
 	if ( SelectTo( pFocus ) )
@@ -465,7 +460,7 @@ void CLibraryTileView::UpdateScroll()
 	GetClientRect( &rc );
 
 	SCROLLINFO pInfo = {};
-	pInfo.cbSize	= sizeof(pInfo);
+	pInfo.cbSize	= sizeof( pInfo );
 	pInfo.fMask		= SIF_ALL & ~SIF_TRACKPOS;
 	pInfo.nMin		= 0;
 	pInfo.nMax		= (int)( ( size() + m_nColumns - 1 ) / m_nColumns ) * m_szBlock.cy;
@@ -852,7 +847,7 @@ HBITMAP CLibraryTileView::CreateDragImage(const CPoint& ptMouse, CPoint& ptMiddl
 		}
 	}
 
-	bool bClipped = rcAll.Height() > MAX_DRAG_SIZE;
+	const bool bClipped = rcAll.Height() > MAX_DRAG_SIZE;
 
 	if ( bClipped )
 	{
@@ -877,9 +872,9 @@ HBITMAP CLibraryTileView::CreateDragImage(const CPoint& ptMouse, CPoint& ptMiddl
 
 	dcDrag.FillSolidRect( 0, 0, rcAll.Width(), rcAll.Height(), DRAG_COLOR_KEY );
 
-	CRgn pRgn;
-
 	ptMiddle.SetPoint( ptMouse.x - rcAll.left, ptMouse.y - rcAll.top );
+
+	CRgn pRgn;
 	if ( bClipped )
 	{
 		pRgn.CreateEllipticRgn(	ptMiddle.x - MAX_DRAG_SIZE_2, ptMiddle.y - MAX_DRAG_SIZE_2,
@@ -1107,7 +1102,7 @@ void CLibraryTileItem::DrawText(CDC* pDC, const CRect* prcClip, int nX, int nY, 
 
 void CLibraryTileView::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 {
-	if ( point.x == -1 && point.y == -1 ) 	// Keyboard fix
+	if ( point.x == -1 && point.y == -1 )	// Keyboard fix
 		ClientToScreen( &point );
 
 	Skin.TrackPopupMenu( m_pszToolBar, point, ID_LIBRARY_ALBUM_OPEN );
