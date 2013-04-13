@@ -72,9 +72,11 @@ BOOL CSettingsPage::LoadDefaultCaption()
 	pData = (DLGTEMPLATE*)GlobalLock( pTemplate.m_hTemplate );
 	if ( ! pData ) return FALSE;
 
+//#ifndef VCEXPRESS
 	if ( ((DLGTEMPLATEEX*)pData)->signature == 0xFFFF )
 		pWord = (WORD*)( (DLGTEMPLATEEX*)pData + 1 );
 	else
+//#endif
 		pWord = (WORD*)( pData + 1 );
 
 	if ( *pWord == 0xFFFF )
@@ -109,6 +111,7 @@ BOOL CSettingsPage::Create(CRect& rcPage, CWnd* pSheetWnd)
 	DWORD dwExStyle = Settings.General.LanguageRTL ? WS_EX_RTLREADING|WS_EX_RIGHT|WS_EX_LEFTSCROLLBAR|WS_EX_LAYOUTRTL :
 		WS_EX_LTRREADING|WS_EX_LEFT|WS_EX_RIGHTSCROLLBAR;
 
+//#ifndef VCEXPRESS
 	if ( ((DLGTEMPLATEEX*)pData)->signature == 0xFFFF )
 	{
 		DLGTEMPLATEEX* pEx = (DLGTEMPLATEEX*)pData;
@@ -116,6 +119,7 @@ BOOL CSettingsPage::Create(CRect& rcPage, CWnd* pSheetWnd)
 		pEx->exStyle	= dwExStyle|WS_EX_WINDOWEDGE|WS_EX_CONTROLPARENT;
 	}
 	else
+//#endif
 	{
 		pData->style			= WS_CHILDWINDOW|WS_OVERLAPPED|DS_3DLOOK|DS_SETFONT|DS_CONTROL;
 		pData->dwExtendedStyle	= dwExStyle|WS_EX_WINDOWEDGE|WS_EX_CONTROLPARENT;
@@ -189,7 +193,7 @@ void CSettingsPage::OnSkinChange()
 //		TCHAR szName[8];
 //		GetClassName( pWnd->GetSafeHwnd(), szName, 8 );			// Alt detection method for exceptions
 //		if ( _tcsnicmp( szName, _PT("Button") ) == 0 &&
-//			 ( pWnd->GetStyle() & BS_CHECKBOX ) || ( ( pWnd->GetStyle() & BS_GROUPBOX ) && pWnd->GetDlgCtrlID() == IDC_STATIC ) )	
+//			 ( pWnd->GetStyle() & BS_CHECKBOX ) || ( ( pWnd->GetStyle() & BS_GROUPBOX ) && pWnd->GetDlgCtrlID() == IDC_STATIC ) )
 //			CCoolInterface::EnableTheme( pWnd, bThemed );
 //	}
 }

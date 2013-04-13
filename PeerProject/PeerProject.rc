@@ -207,7 +207,6 @@ IDR_MOVE_XP				CURSOR		"Res\\MoveXP.cur"
 
 IDB_CHILDFRAME			BITMAP		"Res\\ChildFrame.bmp"
 IDB_MEDIA_STATES		BITMAP		"Res\\MediaStates.bmp"
-IDB_SECURITY			BITMAP		"Res\\SecurityImages.bmp"
 IDB_SMALL_STAR			BITMAP		"Res\\SmallStar.bmp"
 IDB_SORT_ASC			BITMAP		"Res\\SortAsc.bmp"
 IDB_SORT_DESC			BITMAP		"Res\\SortDesc.bmp"
@@ -225,6 +224,7 @@ IDB_PANEL_MARK  		BITMAP		"Res\\PanelMark.bmp"
 IDB_FONT_SYMBOLS		BITMAP		"Res\\FontSymbols.bmp"
 IDB_MUSICBRAINZ_LOGO    BITMAP		"Res\\MusicBrainz.bmp"
 IDB_REMOTE_SKIN 		BITMAP		"Res\\RemoteWnd.bmp"
+//IDB_SECURITY			BITMAP		"Res\\SecurityImages.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -419,7 +419,7 @@ FONT 8, "Tahoma"
 BEGIN
 	GROUPBOX		"Gnutella2 Network:",IDC_STATIC,6,5,132,74,WS_GROUP
 	CONTROL			"Connect to G2 now",IDC_G2_ENABLE,"Button",BS_AUTOCHECKBOX|BS_FLAT|WS_TABSTOP,14,18,120,10
-	CONTROL			"Connect to G2 at startup",IDC_G2_ALWAYS,"Button",BS_AUTO3STATE|WS_TABSTOP,14,34,120,10
+	CONTROL			"Connect to G2 at startup",IDC_G2_ALWAYS,"Button",BS_AUTO3STATE|BS_FLAT|WS_TABSTOP,14,34,120,10
 	RTEXT			"Mode:",IDC_STATIC,16,58,50,8,0
 	COMBOBOX		IDC_G2_CLIENTMODE,71,56,56,54,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
 	GROUPBOX		"G&2 Connections:",IDC_STATIC,6,88,132,74,WS_GROUP
@@ -728,7 +728,7 @@ BEGIN
 	LTEXT			"For best performance, PeerProject needs to know your internet connection.",IDC_STATIC,10,10,270,18
 	LTEXT			"If unsure, select your general Internet connection type:",IDC_STATIC,10,30,260,12
 	COMBOBOX 		IDC_CONNECTION_TYPE,26,44,104,180,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	LTEXT			"Test at Speedtest.net",IDC_WEB,168,46,100,10
+	LTEXT			"Test at Speedtest.net",IDC_WEB,168,46,102,10
 	LTEXT			"Or choose the download speed:",IDC_STATIC,10,64,156,12
 	COMBOBOX		IDC_WIZARD_DOWNLOAD_SPEED,26,77,104,180,CBS_DROPDOWN|WS_VSCROLL|WS_TABSTOP
 	LTEXT			"...and upload speed:",IDC_STATIC,168,64,100,12
@@ -796,8 +796,8 @@ FONT 8, "Tahoma"
 BEGIN
 	LTEXT			"PeerProject supports a flexible user interface, so you can choose what is most comfortable for you.  You can change these options at any time.",IDC_STATIC,10,10,270,20
 	GROUPBOX		"Please select user interface:",IDC_STATIC,7,30,269,83
-	CONTROL			"Basic Mode",IDC_INTERFACE_BASIC,"Button",BS_AUTORADIOBUTTON|WS_GROUP,14,42,250,10
-	CONTROL			"Power Mode",IDC_INTERFACE_EXPERT,"Button",BS_AUTORADIOBUTTON,14,78,250,10
+	CONTROL			"Basic Mode",IDC_INTERFACE_BASIC,"Button",BS_AUTORADIOBUTTON|BS_FLAT|WS_GROUP,14,42,250,10
+	CONTROL			"Power Mode",IDC_INTERFACE_EXPERT,"Button",BS_AUTORADIOBUTTON|BS_FLAT,14,78,250,10
 	LTEXT			"Simple, easy to use menus with fewer options.\nHelpful for new users of file sharing.",IDC_DESCRIPTION_BASIC,27,54,243,21
 	LTEXT			"Standard view offers users all available commands, windows, etc.\nMight be more confusing for brand new users.",IDC_DESCRIPTION_EXPERT,27,90,243,21
 	CONTROL			"Display simplified download progress bars.  (Less detail for new users)",IDC_DOWNLOADS_SIMPLEBAR,"Button",BS_AUTOCHECKBOX|BS_FLAT|WS_TABSTOP,14,121,256,10
@@ -1017,7 +1017,7 @@ BEGIN
 	CONTROL			"Match Any",IDC_RULE_MATCH_ANY,"Button",BS_AUTORADIOBUTTON|WS_GROUP,14,100,52,12
 	CONTROL			"Match All",IDC_RULE_MATCH_ALL,"Button",BS_AUTORADIOBUTTON,71,100,52,12
 	CONTROL			"Reg. Exp.",IDC_REGEXP,"Button",BS_AUTORADIOBUTTON,128,100,52,12
-	GROUPBOX		"&Blocklist File:",IDC_GROUP_EXTERNAL,5,65,180,55,WS_GROUP
+	GROUPBOX		"&Blacklist File:",IDC_GROUP_EXTERNAL,5,65,180,55,WS_GROUP
 	EDITTEXT		IDC_FILE_PATH,14,81,162,12,ES_AUTOHSCROLL
 	PUSHBUTTON		"Browse",IDC_BROWSE_FILES,122,98,54,14
 	GROUPBOX		"&Options:",IDC_STATIC,5,126,180,69,WS_GROUP
@@ -2855,7 +2855,7 @@ BEGIN
 	IDC_RULE_TYPE, 0x403, 15, 0
 0x6f43, 0x746e, 0x6e65, 0x2074, 0x6946, 0x746c, 0x7265, "\000"
     IDC_RULE_TYPE, 0x403, 10, 0
-0x6c42, 0x636f, 0x6c6b, 0x7369, 0x0074,
+0x6c42, 0x6361, 0x6c6b, 0x7369, 0x0074,
 	IDC_RULE_ACTION, 0x403, 5, 0
 0x6f4e, 0x656e, "\000"
 	IDC_RULE_ACTION, 0x403, 7, 0
@@ -3350,6 +3350,8 @@ BEGIN
 	ID_HELP_WEB_4				"Visit this website"
 	ID_HELP_WEB_5				"Visit this website"
 	ID_HELP_WEB_6				"Visit this website"
+	ID_HELP_WEB_SKINS			"Visit the Skins website"
+	ID_HELP_STARTPAGE			"Visit the PeerProject Start Page portal"
 END
 
 STRINGTABLE
