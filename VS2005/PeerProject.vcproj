@@ -1023,6 +1023,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\PeerProject\SecureRule.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\PeerProject\Security.cpp"
 				>
 			</File>
@@ -2634,6 +2638,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\PeerProject\SecureRule.h"
+				>
+			</File>
+			<File
 				RelativePath="..\PeerProject\Security.h"
 				>
 			</File>
@@ -3824,34 +3832,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\PeerProject\Res\ContactAOL.ico"
-				>
-			</File>
-			<File
-				RelativePath="..\PeerProject\Res\ContactICQ.ico"
-				>
-			</File>
-			<File
-				RelativePath="..\PeerProject\Res\ContactMSN.ico"
-				>
-			</File>
-			<File
-				RelativePath="..\PeerProject\Res\ContactYahoo.ico"
-				>
-			</File>
-			<File
-				RelativePath="..\PeerProject\Res\ContactGoogle.ico"
-				>
-			</File>
-			<File
-				RelativePath="..\PeerProject\Res\ContactTwitter.ico"
-				>
-			</File>
-			<File
-				RelativePath="..\PeerProject\Res\ContactFacebook.ico"
-				>
-			</File>
-			<File
 				RelativePath="..\PeerProject\Res\Copy.cur"
 				>
 			</File>
@@ -4043,7 +4023,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\PeerProject\Res\irc.ico"
+				RelativePath="..\PeerProject\Res\IRC.ico"
 				>
 			</File>
 			<File
@@ -4244,6 +4224,10 @@
 			</File>
 			<File
 				RelativePath="..\PeerProject\Res\SmallStar.bmp"
+				>
+			</File>
+			<File
+				RelativePath="..\PeerProject\Res\Social.png"
 				>
 			</File>
 			<File

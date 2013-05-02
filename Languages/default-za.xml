@@ -4,7 +4,7 @@
 <!-- PeerProject Default Afrikaans Skin File -->
 <!-- Weergawe: 27 Oktober 2005 vir Shareaza 2.2.0.2 -->
 
-<!-- Translation based on default-en.xml r90 -->
+<!-- Translation based on default-en.xml r100 -->
 <!-- http://peerproject.svn.sourceforge.net/svnroot/peerproject/trunk/Languages/default-en.xml -->
 
 <!-- This skin template represents current PeerProject defaults. -->
@@ -330,7 +330,7 @@
 		<separator/>
 		<button id="ID_MEDIA_FULLSCREEN"/>
 		<button id="ID_MEDIA_ZOOM"/>
-		<button id="ID_MEDIA_VIS"/>
+		<button id="ID_MEDIA_SETTINGS"/>
 		<rightAlign/>
 		<button id="ID_MEDIA_PREVIOUS"/>
 		<button id="ID_MEDIA_NEXT"/>
@@ -723,7 +723,7 @@
 			<menu text="_Webtuistes">
 				<item id="ID_HELP_HOMEPAGE" text="_PeerProject site"/>
 				<item id="ID_HELP_FORUMS" text="PeerProject _Forums"/>
-				<!-- <item id="ID_HELP_WEB_6" text="PeerProject S_kin Site"/>
+				<!-- <item id="ID_HELP_WEB_SKINS" text="PeerProject S_kin Site"/>
 				<item id="ID_HELP_FAKESHAREAZA" text="FakeSharea_za.com"/>
 				<separator/>
 				<item id="ID_HELP_VERSION_CHECK" text="Check for new _version"/>
@@ -816,7 +816,7 @@
 			<menu text="_Webtuistes">
 				<item id="ID_HELP_HOMEPAGE" text="_PeerProject site"/>
 				<item id="ID_HELP_FORUMS" text="PeerProject _Forums"/>
-				<!-- <item id="ID_HELP_WEB_6" text="PeerProject S_kin Site"/>
+				<!-- <item id="ID_HELP_WEB_SKINS" text="PeerProject S_kin Site"/>
 				<item id="ID_HELP_FAKESHAREAZA" text="FakeSharea_za.com"/>
 				<item id="ID_HELP_UPDATE" text="Jongste nuus"/>
 				<item id="ID_HELP_WEB_1" text="Zeropaid.com"/>
@@ -1474,6 +1474,7 @@
 			<separator/>
 			<item id="ID_VIEW_DISCOVERY" text="_Ontdekkings"/>
 			<item id="ID_VIEW_HOSTS" text="_Gasheer Kasgeheue"/>
+			<item id="ID_VIEW_SECURITY" text="Se_kuriteit"/>
 		</menu>
 		<menu text="_Monitor">
 			<item id="ID_NEIGHBOURS_VIEW_ALL" text="Vertoon _Alle Dataverkeer"/>

@@ -3,7 +3,7 @@
 
 <!-- PeerProject Korean Language Skin File -->
 
-<!-- Translation based on default-en.xml r90 --> <!--Machine Translated!-->
+<!-- Translation based on default-en.xml r100 --> <!--Machine Translated!-->
 <!-- http://peerproject.svn.sourceforge.net/svnroot/peerproject/trunk/Languages/default-en.xml -->
 
 <!-- This skin template represents current PeerProject defaults. -->
@@ -339,7 +339,7 @@
 		<separator/>
 		<button id="ID_MEDIA_FULLSCREEN"/>
 		<button id="ID_MEDIA_ZOOM"/>
-		<button id="ID_MEDIA_VIS"/>
+		<button id="ID_MEDIA_SETTINGS"/>
 			<rightAlign/>
 		<button id="ID_MEDIA_PREVIOUS"/>
 		<button id="ID_MEDIA_NEXT"/>
@@ -593,7 +593,7 @@
 					<item id="ID_HELP_FORUMS" text="PeerProject 포럼"/>
 					<item id="ID_HELP_VERSION_CHECK" text="새 버전에 대한 확인"/>
 					<!-- <item id="ID_HELP_DONATE" text="기부 PeerProject로"/>
-					<item id="ID_HELP_WEB_6" text="PeerProject스킨 사이트"/>
+					<item id="ID_HELP_WEB_SKINS" text="PeerProject 스킨 사이트"/>
 					<item id="ID_HELP_FAKESHAREAZA" text="가짜 FakeSharea_za.com"/>
 					<item id="ID_HELP_UPDATE" text="최신 뉴스"/>
 					<item id="ID_HELP_WEB_1" text="Zeropaid.com"/>
@@ -700,7 +700,7 @@
 				<item id="ID_HELP_HOMEPAGE" text="_PeerProject 사이트 항목"/>
 				<separator/>
 				<item id="ID_HELP_FORUMS" text="PeerProject 포럼"/>
-				<item id="ID_HELP_WEB_6" text="PeerProject스킨 사이트"/>
+				<item id="ID_HELP_WEB_SKINS" text="PeerProject스킨 사이트"/>
 				<item id="ID_HELP_FAKESHAREAZA" text="가짜 FakeSharea_za.com"/> <!--
 				<item id="ID_HELP_UPDATE" text="최신 뉴스"/>
 				<item id="ID_HELP_WEB_1" text="Zeropaid.com"/>
@@ -773,7 +773,7 @@
 				<item id="ID_HELP_HOMEPAGE" text="_PeerProject 사이트 항목"/>
 				<separator/>
 				<item id="ID_HELP_FORUMS" text="PeerProject 포럼"/>
-				<item id="ID_HELP_WEB_6" text="PeerProject 스킨 사이트"/>
+				<item id="ID_HELP_WEB_SKINS" text="PeerProject 스킨 사이트"/>
 				<item id="ID_HELP_FAKESHAREAZA" text="가짜 FakeSharea_za.com"/> <!--
 				<item id="ID_HELP_UPDATE" text="최신 뉴스"/>
 				<item id="ID_HELP_WEB_1" text="Zeropaid.com"/>
@@ -872,7 +872,7 @@
 				<item id="ID_HELP_HOMEPAGE" text="_PeerProject 사이트 항목"/>
 				<separator/>
 				<item id="ID_HELP_FORUMS" text="PeerProject 포럼"/>
-				<item id="ID_HELP_WEB_6" text="PeerProject 스킨 사이트"/>
+				<item id="ID_HELP_WEB_SKINS" text="PeerProject 스킨 사이트"/>
 				<item id="ID_HELP_FAKESHAREAZA" text="가짜 FakeSharea_za.com"/> <!--
 				<item id="ID_HELP_UPDATE" text="최신 뉴스"/>
 				<item id="ID_HELP_WEB_1" text="Zeropaid.com"/>
@@ -1530,6 +1530,7 @@
 			<separator/>
 			<item id="ID_VIEW_DISCOVERY" text="디스커버"/>
 			<item id="ID_VIEW_HOSTS" text="호스트 캐시"/>
+			<item id="ID_VIEW_SECURITY" text="보안 항목"/>
 		</menu>
 		<menu text="_Monitor">
 			<item id="ID_NEIGHBOURS_VIEW_ALL" text="View _All Traffic"/>
